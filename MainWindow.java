@@ -18,7 +18,7 @@ public class MainWindow {
 		
 		Container pane = frame.getContentPane();
 		
-		PexesoContainer pexesoPane = new PexesoContainer(pane, 4, 6);
+		PexesoContainer pexesoPane = new PexesoContainer(pane, 2, 2);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		System.out.println(pexesoPane.getSize());

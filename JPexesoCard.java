@@ -25,7 +25,7 @@ public class JPexesoCard extends JButton{
 	}
 	
 	private void viewError(String errorMsg){
-		//TODO 
+		//TODO create pop-up window
 	}
 	
 	

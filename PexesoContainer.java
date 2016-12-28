@@ -1,10 +1,11 @@
 package pexeso;
 
-import java.awt.Color;
+
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.event.MouseListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -13,7 +14,9 @@ public class PexesoContainer extends Container {
 	int fieldsCnt;
 	int rows;
 	int columns;
-	
+	JPexesoButton pressed; //buffer of pressed pexeso cards
+	//? if I find out, that I am pressing a different card, how to turn it down?
+	// -> simply change it's imageicon
 	/**
 	 * 
 	 */
@@ -25,6 +28,7 @@ public class PexesoContainer extends Container {
 		this.fieldsCnt = rows*columns;
 		this.rows = rows;
 		this.columns = columns;
+		this.pressed = null;
 		
 		//TODO copy all properties from container
 		
@@ -36,41 +40,49 @@ public class PexesoContainer extends Container {
 	 */
 	public void createNewGame(String pathToBackPicture){
 
+		//Setup layout and it's constraints
 		GridBagLayout layout = new GridBagLayout();
 		this.setLayout(layout);
-		System.out.println(this.getSize());
 		GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
-		JButton card[] = new JButton[fieldsCnt];
 		
+		//initializing cards and placing them on the game board
+		JButton card[] = new JButton[fieldsCnt];
 		for (int k = 0; k < fieldsCnt; k++){
 			
+			//back-picture handling
 			card[k] = new JButton(new ImageIcon(pathToBackPicture));
-			//card[k] = new JButton();
-			card[k].setBackground(new Color(130, 54, 52));
-			System.out.println(this.getSize());
-			int imgWidth = (this.getSize().width / columns);
-			int imgHeight = (this.getSize().height / rows);	
-			System.out.printf("Size of the lable is %s \n", card[k].getPreferredSize());
-			Image backSideImg = ((ImageIcon) card[k].getIcon()).getImage(); // get image from icon
-			Image backSideImgScaled;// = backSideImg.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_REPLICATE);
-			if (imgHeight > imgWidth) backSideImgScaled = backSideImg.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE); //scale it
-			else backSideImgScaled = backSideImg.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
-			ImageIcon backSideIcon = new ImageIcon( backSideImgScaled ); //substitute the old one by the scaled one
-			card[k].setIcon(backSideIcon);
-			//pict[k].addMouseListener(mouseListener);
+			this.transformImageIcon(card[k]);
 			
+			MouseListener onClick = null;
+			card[k].addMouseListener(onClick);
+			
+			//property setup for given card
 			constraints[k] = new GridBagConstraints();
-			constraints[k].fill = GridBagConstraints.BOTH;
-			constraints[k].gridx = k%columns;
-			constraints[k].gridy = k/columns;
-			constraints[k].gridwidth = 1;
-			constraints[k].gridheight = 1;
-			constraints[k].weightx = 1;
-			constraints[k].weighty = 1;
+			setConstraints(constraints[k], k);
 			layout.setConstraints(card[k], constraints[k]);
 			
 			this.add(card[k]);
 		}
+	}
+
+	//TODO run every time when replacing image-icon on a card
+	private void transformImageIcon(JButton card){
+		int imgWidth = this.getSize().width / columns;
+		int imgHeight = this.getSize().height / rows;	
+		Image originalIcon = ((ImageIcon) card.getIcon()).getImage(); // get image from icon
+		Image resizedIcon;
+		if (imgHeight > imgWidth) resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE); //scale it
+		else resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
+		ImageIcon newIcon = new ImageIcon( resizedIcon ); //substitute the old one by the scaled one
+		card.setIcon(newIcon);
+	}
+	
+	private void setConstraints(GridBagConstraints c, int k){
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = k%columns;
+		c.gridy = k/columns;
+		c.weightx = 1;
+		c.weighty = 1;
 	}
 
 }
