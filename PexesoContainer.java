@@ -14,22 +14,38 @@ public class PexesoContainer extends Container {
 	int fieldsCnt;
 	int rows;
 	int columns;
-	JPexesoButton pressed; //buffer of pressed pexeso cards
-	//? if I find out, that I am pressing a different card, how to turn it down?
-	// -> simply change it's imageicon
+	JPexesoCard[] turned; //buffer of pressed pexeso cards
+	ImageIcon backPicture; //back side of the cards
+	ImageIcon[][] frontPictureTuples;
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
 	
-	
-	public PexesoContainer(Container container, int rows, int columns){
+	public PexesoContainer(Container container, int rows, int columns, String pathToPicture, String[][] pathsToFrontPictures){
 		this.fieldsCnt = rows*columns;
 		this.rows = rows;
 		this.columns = columns;
-		this.pressed = null;
+		this.turned = new JPexesoCard[2];
 		
+		if (picturePathOk(pathToPicture)){
+			System.out.println("calling ImageIcon constructor on "+pathToPicture);
+			backPicture = new ImageIcon(pathToPicture);
+		}
+		
+		//processing the paths to pictures
+		frontPictureTuples = new ImageIcon[rows*columns/2][2];
+		for (int i=0; i < rows*columns/2; i++){
+			for (int j=0; j < 2; j++){
+				System.out.println("calling ImageIcon constructor on "+pathsToFrontPictures[i][j]);
+				if (picturePathOk(pathsToFrontPictures[i][j])){
+					frontPictureTuples[i][j] = new ImageIcon(pathsToFrontPictures[i][j]);
+				}
+			}
+		}
+		
+
 		//TODO copy all properties from container
 		
 	}
@@ -38,7 +54,7 @@ public class PexesoContainer extends Container {
 	 * @param pathToBackPicture - path to picture, which will be shown as a back side of the pexeso cards
 	 * 
 	 */
-	public void createNewGame(String pathToBackPicture){
+	public void createNewGame(){
 
 		//Setup layout and it's constraints
 		GridBagLayout layout = new GridBagLayout();
@@ -46,35 +62,30 @@ public class PexesoContainer extends Container {
 		GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
 		
 		//initializing cards and placing them on the game board
-		JButton card[] = new JButton[fieldsCnt];
+		JPexesoCard card[] = new JPexesoCard[fieldsCnt];
 		for (int k = 0; k < fieldsCnt; k++){
 			
 			//back-picture handling
-			card[k] = new JButton(new ImageIcon(pathToBackPicture));
-			this.transformImageIcon(card[k]);
+			card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
 			
-			MouseListener onClick = null;
-			card[k].addMouseListener(onClick);
+			MouseListener onClick = new clickProcessor(this, card[k]);
+			card[k].getButton().addMouseListener(onClick);
 			
 			//property setup for given card
 			constraints[k] = new GridBagConstraints();
 			setConstraints(constraints[k], k);
-			layout.setConstraints(card[k], constraints[k]);
+			layout.setConstraints(card[k].getButton(), constraints[k]);
 			
-			this.add(card[k]);
+			this.add(card[k].getButton());
 		}
 	}
-
-	//TODO run every time when replacing image-icon on a card
-	private void transformImageIcon(JButton card){
-		int imgWidth = this.getSize().width / columns;
-		int imgHeight = this.getSize().height / rows;	
-		Image originalIcon = ((ImageIcon) card.getIcon()).getImage(); // get image from icon
-		Image resizedIcon;
-		if (imgHeight > imgWidth) resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE); //scale it
-		else resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
-		ImageIcon newIcon = new ImageIcon( resizedIcon ); //substitute the old one by the scaled one
-		card.setIcon(newIcon);
+	
+	public void setTurnedCards(JPexesoCard[] cards){
+		turned = cards;
+	}
+	
+	public JPexesoCard[] getTurnedCards(){
+		return turned;
 	}
 	
 	private void setConstraints(GridBagConstraints c, int k){
@@ -84,5 +95,37 @@ public class PexesoContainer extends Container {
 		c.weightx = 1;
 		c.weighty = 1;
 	}
+	
+	private boolean picturePathOk(String path){
+		String[] fileFormat = path.split("\\.");
+		//System.out.println(path);
+		//System.out.print(fileFormat[0]+" a "+fileFormat[1]);
+		int last = fileFormat.length - 1;
+		
+		switch(fileFormat[last]){
+		//lower case
+		case "png":
+			return true;
+		case "gif":
+			return true;
+		case "jpeg":
+			return true;
+		case "jpg":
+			return true;
+		
+		//upper case
+		case "JPG":
+			return true;
+		case "JPEG":
+			return true;
+		case "GIF":
+			return true;
+		case "PNG":
+			return true;
+		default:
+			return false;
+		}
+	}
+	
 
 }
