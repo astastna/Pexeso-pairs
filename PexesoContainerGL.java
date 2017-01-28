@@ -4,17 +4,18 @@ package pexeso;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-public class PexesoContainer extends Container {
+public class PexesoContainerGL extends Container {
 	int fieldsCnt;
 	int rows;
 	int columns;
-	JPexesoCard[] turned; //buffer of pressed pexeso cards
+	JPexesoCardGL[] turned; //buffer of pressed pexeso cards
 	ImageIcon backPicture; //back side of the cards
 	ImageIcon[][] frontPictureTuples;
 	
@@ -23,11 +24,11 @@ public class PexesoContainer extends Container {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public PexesoContainer(Container container, int rows, int columns, String pathToPicture, String[][] pathsToFrontPictures){
+	public PexesoContainerGL(Container container, int rows, int columns, String pathToPicture, String[][] pathsToFrontPictures){
 		this.fieldsCnt = rows*columns;
 		this.rows = rows;
 		this.columns = columns;
-		this.turned = new JPexesoCard[2];
+		this.turned = new JPexesoCardGL[2];
 		
 		if (picturePathOk(pathToPicture)){
 			System.out.println("calling ImageIcon constructor on "+pathToPicture);
@@ -54,34 +55,38 @@ public class PexesoContainer extends Container {
 	public void createNewGame(){
 
 		//Setup layout and it's constraints
-		GridBagLayout layout = new GridBagLayout();
+		GridLayout layout = new GridLayout(columns, rows, 0, 0);
+		
 		this.setLayout(layout);
-		GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
+		//GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
 		
 		//initializing cards and placing them on the game board
-		JPexesoCard card[] = new JPexesoCard[fieldsCnt];
+		JPexesoCardGL card[] = new JPexesoCardGL[fieldsCnt];
+		String[] description = new String[fieldsCnt];
 		for (int k = 0; k < fieldsCnt; k++){
 			
 			//back-picture handling
-			card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
+			card[k] = new JPexesoCardGL(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
 			
-			MouseListener onClick = new clickProcessor(this, card[k]);
+			MouseListener onClick = new clickProcessorGL(this, card[k]);
 			card[k].getButton().addMouseListener(onClick);
 			
 			//property setup for given card
-			constraints[k] = new GridBagConstraints();
-			setConstraints(constraints[k], k);
-			layout.setConstraints(card[k].getButton(), constraints[k]);
+			//constraints[k] = new GridBagConstraints();
+			//setConstraints(constraints[k], k);
+			//layout.setConstraints(card[k].getButton(), constraints[k]);
+			description[k] = "("+((Integer)columns).toString()+";"+((Integer)rows).toString()+")";
+			layout.addLayoutComponent(description[k], card[k]);
 			
 			this.add(card[k].getButton());
 		}
 	}
 	
-	public void setTurnedCards(JPexesoCard[] cards){
+	public void setTurnedCards(JPexesoCardGL[] cards){
 		turned = cards;
 	}
 	
-	public JPexesoCard[] getTurnedCards(){
+	public JPexesoCardGL[] getTurnedCards(){
 		return turned;
 	}
 	

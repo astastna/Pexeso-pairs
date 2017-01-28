@@ -5,7 +5,7 @@ import java.awt.Toolkit;
 
 import javax.swing.*;
 
-public class MainWindow {	
+public class MainWindowGL {	
 	
 	private static void createAndShowGUI() {
 		
@@ -18,20 +18,20 @@ public class MainWindow {
 		
 		Container pane = frame.getContentPane();
 
-		String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
+		/*String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
 		String[] secondTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
 		String[] thirdTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
-		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
+		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};*/
 		
 		
-		/*String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
+		String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
 		String[] secondTuple = {"/home/anet/MFF/Java/Zapocet/RikiCte.jpg", "/home/anet/MFF/Java/Zapocet/RikiCte.jpg"};
 		String[] thirdTuple = {"/home/anet/MFF/Java/Zapocet/spiciRiki.jpg", "/home/anet/MFF/Java/Zapocet/spiciRiki.jpg"};
-		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/produkt-jablko.png", "/home/anet/MFF/Java/Zapocet/produkt-jablko.png"};*/
+		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/produkt-jablko.png", "/home/anet/MFF/Java/Zapocet/produkt-jablko.png"};
 		
 		String[][] paths = {firstTuple, secondTuple, thirdTuple, forthTuple};
 
-		PexesoContainer pexesoPane = new PexesoContainer(pane, 2, 4, "/home/anet/MFF/Java/Zapocet/zadni-strana-pexesa.png", paths);
+		PexesoContainerGL pexesoPane = new PexesoContainerGL(pane, 2, 4, "/home/anet/MFF/Java/Zapocet/zadni-strana-pexesa.png", paths);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		System.out.println(pexesoPane.getSize());

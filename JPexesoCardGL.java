@@ -5,7 +5,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 
-public class JPexesoCard extends JButton{
+public class JPexesoCardGL extends JButton{
 	
 	/**
 	 * 
@@ -14,13 +14,13 @@ public class JPexesoCard extends JButton{
 	
 	JButton butt;
 	ImageIcon front; //only front picture is interesting, back will be the same for all fields
-	PexesoContainer cont;
+	PexesoContainerGL cont;
 	
 	int tupleNr; //number, which defines tuple, in which this card is
 	int id; //id in the tuple
 	boolean tupleFound;
 	
-	public JPexesoCard(ImageIcon img, int nr, PexesoContainer c, int id){
+	public JPexesoCardGL(ImageIcon img, int nr, PexesoContainerGL c, int id){
 		System.out.println("Adding back icon to card nr "+((Integer) nr).toString());
 		this.butt = new JButton(c.backPicture);
 		ImageIcon newBackIcon = transformImageIcon2(c, c.backPicture);
@@ -59,11 +59,11 @@ public class JPexesoCard extends JButton{
 		return butt;
 	}
 	
-	private void transformImageIcon(PexesoContainer cont){
+	private void transformImageIcon(PexesoContainerGL cont2){
 		
 		System.out.println("Transforming an image icon in transformImageIcon.");
-		int imgWidth = cont.getSize().width / cont.columns;
-		int imgHeight = cont.getSize().height / cont.rows;	
+		int imgWidth = cont2.getSize().width / cont2.columns;
+		int imgHeight = cont2.getSize().height / cont2.rows;	
 		
 		// get image from icon
 		Image originalIcon = ((ImageIcon) this.getButton().getIcon()).getImage(); 
@@ -82,7 +82,7 @@ public class JPexesoCard extends JButton{
 		this.getButton().setIcon(newIcon);
 	}
 	
-	public ImageIcon transformImageIcon2(PexesoContainer cont, ImageIcon orig){
+	public ImageIcon transformImageIcon2(PexesoContainerGL cont, ImageIcon orig){
 		
 		System.out.println("Transforming an image icon in transformImageIcon2.");
 		int imgWidth = cont.getSize().width / cont.columns;

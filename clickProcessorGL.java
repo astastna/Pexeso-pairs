@@ -3,24 +3,24 @@ package pexeso;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class clickProcessor implements MouseListener{
-	JPexesoCard currentCard; //card, which has been clicked on
+public class clickProcessorGL implements MouseListener{
+	JPexesoCardGL currentCard; //card, which has been clicked on
 	
-	PexesoContainer game; //container with game parameters
+	PexesoContainerGL game; //container with game parameters
 	//game.getTurned
 	//cards, which are already turned over
 		//null if no card is turned
 	
-	public clickProcessor(PexesoContainer game, JPexesoCard currentCard){
+	public clickProcessorGL(PexesoContainerGL game, JPexesoCardGL currentCard){
 		this.currentCard = currentCard;
 		this.game = game;
 	}
 	
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		JPexesoCard[] turned = game.getTurnedCards();
+		JPexesoCardGL[] turned = game.getTurnedCards();
 		boolean ignore = false;
-		JPexesoCard[] newTurned = new JPexesoCard[2];
+		JPexesoCardGL[] newTurned = new JPexesoCardGL[2];
 		
 		// dealing with duplicit clicks
 		if (currentCard.tupleFound){
