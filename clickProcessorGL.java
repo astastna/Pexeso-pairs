@@ -7,9 +7,6 @@ public class clickProcessorGL implements MouseListener{
 	JPexesoCardGL currentCard; //card, which has been clicked on
 	
 	PexesoContainerGL game; //container with game parameters
-	//game.getTurned
-	//cards, which are already turned over
-		//null if no card is turned
 	
 	public clickProcessorGL(PexesoContainerGL game, JPexesoCardGL currentCard){
 		this.currentCard = currentCard;

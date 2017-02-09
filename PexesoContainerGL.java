@@ -2,14 +2,9 @@ package pexeso;
 
 
 import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.MouseListener;
-
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 
 public class PexesoContainerGL extends Container {
 	int fieldsCnt;
@@ -90,15 +85,6 @@ public class PexesoContainerGL extends Container {
 		return turned;
 	}
 	
-	private void setConstraints(GridBagConstraints c, int k){
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = k%columns;
-		c.gridy = k/columns;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-	}
 	
 	private boolean picturePathOk(String path){
 		String[] fileFormat = path.split("\\.");

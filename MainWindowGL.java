@@ -2,10 +2,16 @@ package pexeso;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
 public class MainWindowGL {	
+	private PexesoContainerGL pexeso;
+	
 	
 	private static void createAndShowGUI() {
 		
@@ -14,15 +20,11 @@ public class MainWindowGL {
 		JFrame frame = new JFrame("Pexeso");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addComponentListener(new ResizeListener()); //TODO redo
-		//frame.setSize(screenSize.width, screenSize.height);
-		
-		Container pane = frame.getContentPane();
+		JMenuBar menuBar = createMenus(frame);
 
-		/*String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
-		String[] secondTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
-		String[] thirdTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
-		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};*/
 		
+		//TODO get this from user
+		Container pane = frame.getContentPane();
 		
 		String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
 		String[] secondTuple = {"/home/anet/MFF/Java/Zapocet/RikiCte.jpg", "/home/anet/MFF/Java/Zapocet/RikiCte.jpg"};
@@ -30,17 +32,22 @@ public class MainWindowGL {
 		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/produkt-jablko.png", "/home/anet/MFF/Java/Zapocet/produkt-jablko.png"};
 		
 		String[][] paths = {firstTuple, secondTuple, thirdTuple, forthTuple};
-
+		
 		PexesoContainerGL pexesoPane = new PexesoContainerGL(pane, 2, 4, "/home/anet/MFF/Java/Zapocet/zadni-strana-pexesa.png", paths);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
-		System.out.println(pexesoPane.getSize());
+		
+		//System.out.println(pexesoPane.getSize());
+		
+		
+		
 		
 		pexesoPane.createNewGame();
-		
 		frame.setContentPane(pexesoPane);
+		frame.setJMenuBar(menuBar);
 		frame.validate();
 		frame.pack();
+		
 		
 		
 		frame.setVisible(true);
@@ -58,6 +65,73 @@ public class MainWindowGL {
 		});
 	}
 
+	private static JMenuBar createMenus(final JFrame frame){
+		JMenuBar menuBar;
+		JMenu menu;
+		JMenuItem newGameItem, existingGameItem, quitItem;
+
+		menuBar = new JMenuBar();
+
+		//The main menu
+		menu = new JMenu("Game");
+		menu.setMnemonic(KeyEvent.VK_A);
+		menu.getAccessibleContext().setAccessibleDescription(
+		        "Menu for game options.");
+		menuBar.add(menu);
+
+		//New game item
+		newGameItem = new JMenuItem("Create new game",
+		                         KeyEvent.VK_T);
+		newGameItem.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_1, ActionEvent.ALT_MASK));
+		newGameItem.getAccessibleContext().setAccessibleDescription(
+		        "Creates a form for new game.");
+		//newGameItem.addActionListener(actionListener);
+		//TODO add action with pop-up window 
+		//make default option "Use default images." and some size, such that new game can be started quickly
+		//TODO save game setup - so you don't have to upload the imiges every time
+		menu.add(newGameItem);
+		
+		//Play existing game item
+		existingGameItem = new JMenuItem("Play an existing game", KeyEvent.VK_T);
+		existingGameItem.setAccelerator(KeyStroke.getKeyStroke(
+		        KeyEvent.VK_2, ActionEvent.ALT_MASK));
+		existingGameItem.getAccessibleContext().setAccessibleDescription(
+		        "Choose an existing game from file.");
+		//TODO add action with pop-up window with only option to upload special file
+		menu.add(existingGameItem);
+		
+		//Quit
+		quitItem = new JMenuItem("Quit");
+		quitItem.addActionListener(new ActionListener() {
+			public void actionPerformed (ActionEvent e){
+				//close frame
+				frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		menu.add(quitItem);
+		
+		return menuBar;
+	}
+	
+	private PexesoContainerGL createNewPexeso(JFrame frame, String[][] paths, int width, int height, String backSideImage){
+		Container pane = frame.getContentPane();
+		
+		// manual initialization for testing
+		/*String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
+		String[] secondTuple = {"/home/anet/MFF/Java/Zapocet/RikiCte.jpg", "/home/anet/MFF/Java/Zapocet/RikiCte.jpg"};
+		String[] thirdTuple = {"/home/anet/MFF/Java/Zapocet/spiciRiki.jpg", "/home/anet/MFF/Java/Zapocet/spiciRiki.jpg"};
+		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/produkt-jablko.png", "/home/anet/MFF/Java/Zapocet/produkt-jablko.png"};
+		
+		String[][] paths = {firstTuple, secondTuple, thirdTuple, forthTuple};*/
+		
+		PexesoContainerGL pexesoPane = new PexesoContainerGL(pane, 2, 4, "/home/anet/MFF/Java/Zapocet/zadni-strana-pexesa.png", paths);
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		pexesoPane.setSize(screenSize);
+		
+		return pexesoPane;
+		
+	}
 	
 	/*ImageIcon backSide = new ImageIcon("/home/anet/MFF/Zapocet/zadni-strana-pexesa.png");
 	JLabel[] backPictures = new JLabel[16];
