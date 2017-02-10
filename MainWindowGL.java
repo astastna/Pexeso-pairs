@@ -10,7 +10,9 @@ import java.awt.event.WindowEvent;
 import javax.swing.*;
 
 public class MainWindowGL {	
-	private PexesoContainerGL pexeso;
+	//private PexesoContainerGL myPexeso;
+	private final static int defaultGameWidth = 4;
+	private final static int defaultGameHeight = 4;
 	
 	
 	private static void createAndShowGUI() {
@@ -24,9 +26,11 @@ public class MainWindowGL {
 
 		
 		//TODO get this from user
+		
+		//System.out.println(pexesoPane.getSize());
 		Container pane = frame.getContentPane();
 		
-		String[] firstTuple = {"/home/anet/MFF/Java/Zapocet/RikiJi.jpg", "/home/anet/MFF/Java/Zapocet/RikiJi.jpg"};
+		String[] firstTuple = {"/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/img0.jpg", "img0.jpg"};
 		String[] secondTuple = {"/home/anet/MFF/Java/Zapocet/RikiCte.jpg", "/home/anet/MFF/Java/Zapocet/RikiCte.jpg"};
 		String[] thirdTuple = {"/home/anet/MFF/Java/Zapocet/spiciRiki.jpg", "/home/anet/MFF/Java/Zapocet/spiciRiki.jpg"};
 		String[] forthTuple = {"/home/anet/MFF/Java/Zapocet/produkt-jablko.png", "/home/anet/MFF/Java/Zapocet/produkt-jablko.png"};
@@ -36,13 +40,8 @@ public class MainWindowGL {
 		PexesoContainerGL pexesoPane = new PexesoContainerGL(pane, 2, 4, "/home/anet/MFF/Java/Zapocet/zadni-strana-pexesa.png", paths);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
-		
-		//System.out.println(pexesoPane.getSize());
-		
-		
-		
-		
 		pexesoPane.createNewGame();
+		//PexesoContainerGL myPexeso = createNewPexeso();
 		frame.setContentPane(pexesoPane);
 		frame.setJMenuBar(menuBar);
 		frame.validate();
@@ -79,6 +78,9 @@ public class MainWindowGL {
 		        "Menu for game options.");
 		menuBar.add(menu);
 
+		//TODO add sections
+		// About - including Author, Licence, Origin of images
+		
 		//New game item
 		newGameItem = new JMenuItem("Create new game",
 		                         KeyEvent.VK_T);
@@ -86,10 +88,13 @@ public class MainWindowGL {
 		        KeyEvent.VK_1, ActionEvent.ALT_MASK));
 		newGameItem.getAccessibleContext().setAccessibleDescription(
 		        "Creates a form for new game.");
-		//newGameItem.addActionListener(actionListener);
-		//TODO add action with pop-up window 
-		//make default option "Use default images." and some size, such that new game can be started quickly
-		//TODO save game setup - so you don't have to upload the imiges every time
+		newGameItem.addActionListener(new ActionListener() {
+			public void actionPerformed (ActionEvent e){
+				SizeForm newGameForm = new SizeForm(defaultGameWidth, defaultGameHeight, frame);
+				newGameForm.setVisible(true);
+			}
+		});
+		//TODO add possibility to save game setup - so you don't have to upload the images every time
 		menu.add(newGameItem);
 		
 		//Play existing game item
@@ -114,7 +119,7 @@ public class MainWindowGL {
 		return menuBar;
 	}
 	
-	private PexesoContainerGL createNewPexeso(JFrame frame, String[][] paths, int width, int height, String backSideImage){
+	private static PexesoContainerGL createNewPexeso(JFrame frame, String[][] paths, int width, int height, String backSideImage){
 		Container pane = frame.getContentPane();
 		
 		// manual initialization for testing
@@ -132,6 +137,27 @@ public class MainWindowGL {
 		return pexesoPane;
 		
 	}
+	
+	private static PexesoContainerGL loadGame(String pathToObjectFile){
+		//TODO load from file
+		
+		return null; 
+	}
+	
+	
+	/* Want to use somewhere!
+	 * 
+	 * Returns an ImageIcon, or null if the path was invalid.
+    protected static ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = DialogDemo.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
+    }*/
+	
 	
 	/*ImageIcon backSide = new ImageIcon("/home/anet/MFF/Zapocet/zadni-strana-pexesa.png");
 	JLabel[] backPictures = new JLabel[16];

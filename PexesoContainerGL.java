@@ -43,6 +43,10 @@ public class PexesoContainerGL extends Container {
 		//TODO copy all properties from container
 	}
 
+	public PexesoContainerGL() {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * @param pathToBackPicture - path to picture, which will be shown as a back side of the pexeso cards
 	 * 
