@@ -2,7 +2,7 @@ package pexeso;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Font;
+//import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -13,6 +13,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 public class SizeForm extends JFrame{
@@ -37,15 +38,19 @@ public class SizeForm extends JFrame{
 	}
 	
 	private JDialog showRangeError(){
-		//TODO 
-		// don't forget on at least one odd !
+		JOptionPane.showMessageDialog(currentSizeForm,
+			    "Range or value error. \n Please, insert natural numbers between 1 and "+((Integer) maxSize).toString() + "\n At least one of the numbers have to be odd.",
+			    "Number value error",
+			    JOptionPane.ERROR_MESSAGE);
 		return null;
 		
 	}
 	
 	private JDialog showNumberFormatError(){
-		//TODO
-		
+		JOptionPane.showMessageDialog(currentSizeForm,
+			    "Wrong number format. \n Please insert numbers in a valid format.",
+			    "Number format error",
+			    JOptionPane.ERROR_MESSAGE);
 		return null;
 	}
 	
@@ -159,8 +164,6 @@ public class SizeForm extends JFrame{
 		});
 		next.setAlignmentX(Component.RIGHT_ALIGNMENT);
 		pane.add(next);
-		
-		//TODO add action for other new game creation step
 		
 		this.pack();
 		
