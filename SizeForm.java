@@ -29,6 +29,7 @@ public class SizeForm extends JFrame{
 	
 	
 	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig){
+		//System.out.println("Size form constructor: "+ ((Integer) defaultWidth).toString() + " , " + ((Integer) defaultHeight).toString() ) ; 
 		this.defaultWidth = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.currentSizeForm = this;
@@ -117,7 +118,7 @@ public class SizeForm extends JFrame{
 		x.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
 		//Height-field
-		final JTextField heightField = new JTextField(((Integer)defaultWidth ).toString());
+		final JTextField heightField = new JTextField(((Integer)defaultHeight ).toString());
 		heightField.setAlignmentX(Component.RIGHT_ALIGNMENT);	
 		
 		//Grouping together

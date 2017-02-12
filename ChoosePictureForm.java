@@ -309,16 +309,33 @@ public class ChoosePictureForm extends JFrame{
 		buttGroup.add(customImgPairs);
 		buttGroup.add(customImgDiff);
 		
+		//Back button
+		JButton back = new JButton("Back");
+		//back.setAlignmentX(Component.LEFT_ALIGNMENT);
+		//back.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		back.addActionListener(new ActionListener() {
+			public void actionPerformed (ActionEvent e){
+				//System.out.println("Size form calling: "+ ((Integer) gameWidth).toString() + " , " + ((Integer) gameHeight).toString() ) ;
+				SizeForm changeSize = new SizeForm(gameWidth, gameHeight, original);
+				changeSize.setVisible(true);
+				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
+			}
+		});
+		
 		//Save button
 		JButton save = new JButton("Save this new game");
-		save.setAlignmentX(Component.LEFT_ALIGNMENT);
-		save.setAlignmentY(Component.BOTTOM_ALIGNMENT);
-		//TODO implement action
+		//save.setAlignmentX(Component.LEFT_ALIGNMENT);
+		//save.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		save.addActionListener(new ActionListener () {
+			public void actionPerformed (ActionEvent e){
+				//TODO check file paths and then flush in a text format into a file
+			}
+		});
 		
 		//Finish button
 		JButton finish = new JButton("Finish");
-		finish.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		finish.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		//finish.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		//finish.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		finish.addActionListener(new ActionListener() {
 			
 			//TODO check that enough files were written
@@ -348,7 +365,7 @@ public class ChoosePictureForm extends JFrame{
 					
 				case "customDiff":
 					//choose-file fields already created
-					// and take the paths from them and use them to create new game
+					//and take the paths from them and use them to create new game
 					if (pathNamesExist()){
 						PexesoContainerGL customDiff = prepareNewGame(paths);
 						chosenPexesoPane = customDiff;
@@ -371,6 +388,9 @@ public class ChoosePictureForm extends JFrame{
 		
 		//Button box
 		Box buttonBox = Box.createHorizontalBox();
+		buttonBox.add(Box.createHorizontalGlue());
+		buttonBox.add(back);
+		buttonBox.add(Box.createHorizontalGlue());
 		buttonBox.add(save);
 		buttonBox.add(Box.createHorizontalGlue());
 		buttonBox.add(finish);
