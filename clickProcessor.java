@@ -7,9 +7,6 @@ public class clickProcessor implements MouseListener{
 	JPexesoCard currentCard; //card, which has been clicked on
 	
 	PexesoContainer game; //container with game parameters
-	//game.getTurned
-	//cards, which are already turned over
-		//null if no card is turned
 	
 	public clickProcessor(PexesoContainer game, JPexesoCard currentCard){
 		this.currentCard = currentCard;

@@ -59,11 +59,11 @@ public class JPexesoCard extends JButton{
 		return butt;
 	}
 	
-	private void transformImageIcon(PexesoContainer cont){
+	private void transformImageIcon(PexesoContainer cont2){
 		
 		System.out.println("Transforming an image icon in transformImageIcon.");
-		int imgWidth = cont.getSize().width / cont.columns;
-		int imgHeight = cont.getSize().height / cont.rows;	
+		int imgWidth = cont2.getSize().width / cont2.columns;
+		int imgHeight = cont2.getSize().height / cont2.rows;	
 		
 		// get image from icon
 		Image originalIcon = ((ImageIcon) this.getButton().getIcon()).getImage(); 

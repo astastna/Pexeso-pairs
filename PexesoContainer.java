@@ -2,13 +2,12 @@ package pexeso;
 
 
 import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Image;
+import java.awt.GridLayout;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 
 public class PexesoContainer extends Container {
 	int fieldsCnt;
@@ -38,6 +37,7 @@ public class PexesoContainer extends Container {
 		frontPictureTuples = new ImageIcon[rows*columns/2][2];
 		for (int i=0; i < rows*columns/2; i++){
 			for (int j=0; j < 2; j++){
+				System.out.println("i: "+ ((Integer)i).toString() + " , j: " + ((Integer)j).toString());
 				System.out.println("calling ImageIcon constructor on "+pathsToFrontPictures[i][j]);
 				if (picturePathOk(pathsToFrontPictures[i][j])){
 					frontPictureTuples[i][j] = new ImageIcon(pathsToFrontPictures[i][j]);
@@ -47,6 +47,10 @@ public class PexesoContainer extends Container {
 		//TODO copy all properties from container
 	}
 
+	public PexesoContainer() {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * @param pathToBackPicture - path to picture, which will be shown as a back side of the pexeso cards
 	 * 
@@ -54,24 +58,34 @@ public class PexesoContainer extends Container {
 	public void createNewGame(){
 
 		//Setup layout and it's constraints
-		GridBagLayout layout = new GridBagLayout();
+		GridLayout layout = new GridLayout(columns, rows, 0, 0);
+		
 		this.setLayout(layout);
-		GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
+		//GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
 		
 		//initializing cards and placing them on the game board
 		JPexesoCard card[] = new JPexesoCard[fieldsCnt];
+		String[] description = new String[fieldsCnt];
+		
+		//prepare shuffled field
+		ArrayList<Integer> shuffled = new ArrayList<Integer>();
 		for (int k = 0; k < fieldsCnt; k++){
+			shuffled.add(k);
+		}
+		Collections.shuffle(shuffled);
+		
+		for (int k = 0; k < fieldsCnt; k++){
+			//use k from shuffled array for the card
+			int randK = shuffled.get(k);
 			
 			//back-picture handling
-			card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
+			card[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
 			
 			MouseListener onClick = new clickProcessor(this, card[k]);
 			card[k].getButton().addMouseListener(onClick);
 			
-			//property setup for given card
-			constraints[k] = new GridBagConstraints();
-			setConstraints(constraints[k], k);
-			layout.setConstraints(card[k].getButton(), constraints[k]);
+			description[k] = "("+((Integer)columns).toString()+";"+((Integer)rows).toString()+")";
+			layout.addLayoutComponent(description[k], card[k]);
 			
 			this.add(card[k].getButton());
 		}
@@ -85,17 +99,10 @@ public class PexesoContainer extends Container {
 		return turned;
 	}
 	
-	private void setConstraints(GridBagConstraints c, int k){
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = k%columns;
-		c.gridy = k/columns;
-		c.weightx = 1;
-		c.weighty = 1;
-		c.gridwidth = 1;
-		c.gridheight = 1;
-	}
 	
 	private boolean picturePathOk(String path){
+		if (path == null) return false;
+		
 		String[] fileFormat = path.split("\\.");
 		//System.out.println(path);
 		//System.out.print(fileFormat[0]+" a "+fileFormat[1]);

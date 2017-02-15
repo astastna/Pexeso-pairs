@@ -163,8 +163,17 @@ public class SizeForm extends JFrame{
 				}
 			}
 		});
-		next.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		pane.add(next);
+		
+		Box nextBox = Box.createHorizontalBox();
+		nextBox.add(Box.createHorizontalGlue());
+		nextBox.add(next);
+		nextBox.add(Box.createHorizontalGlue());
+		
+		pane.add(nextBox);
+		
+		//Vertical space
+		Component strut = Box.createVerticalStrut(10);
+		pane.add(strut);
 		
 		this.pack();
 		

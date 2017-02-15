@@ -8,9 +8,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.AbstractButton;
 import javax.swing.Box;
@@ -25,17 +31,22 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 
 
+
 public class ChoosePictureForm extends JFrame{
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	//TODO enable user to choose own back side image
+	private final static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
+	
 	int gameWidth;
 	int gameHeight;
 	JFrame original;
 	ChoosePictureForm currentWindow;
 	Container pane;
-	PexesoContainerGL chosenPexesoPane;
+	PexesoContainer chosenPexesoPane;
 	String[][] paths;
 	
 	public ChoosePictureForm(int width, int height, JFrame orig){
@@ -62,10 +73,70 @@ public class ChoosePictureForm extends JFrame{
 		return null;
 	}
 	
-	private String[][] defaultImages(){
-	int pairs = gameWidth*gameHeight/2;
+	private void flushNewGameDataIntoFile(File file){
+		//open file
+		if (file.exists()){
+			//ask user whether to overwrite the file
+			int userOutput = JOptionPane.showConfirmDialog(currentWindow,
+				    "The specified file already exists.\n"
+				    + "Are you sure that you want to overwrite it's contents?",
+				    "File already exists",
+				    JOptionPane.YES_NO_OPTION); 
+			//overwrite it if user agrees
+			if (userOutput == JOptionPane.YES_OPTION){
+				writeDataToFile(file);
+				System.out.println("Output should be succesfully rewritten.");
+			}
+		}
+		else{
+			//file doesn't exist
+			writeDataToFile(file);
+			System.out.println("Output should be succesfully written.");
+		}
+	}
+	
+	private void writeDataToFile(File file){
+		try{
+			Charset utf8 = StandardCharsets.UTF_8;
+			List<String> lines = getDataIntoList();
+			Files.write(Paths.get(file.getAbsolutePath()), lines, utf8);
+		}
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(currentWindow,
+				    "An IO Exception occured. \n"+
+				    "Trying again with different file might help. \n"+
+				    "Please note that the game has not been saved.",
+				    "IO Exception warning",
+				    JOptionPane.WARNING_MESSAGE);
+		}
+	}
+	
+	private List<String> getDataIntoList(){
+		ArrayList<String> list = new ArrayList<String>();
 		
-		String[][] paths = new String[pairs][2];
+		//add width and height to the file
+		String dimen = ((Integer) gameWidth).toString() + ";" + ((Integer) gameHeight).toString();
+		list.add(dimen);
+		
+		//add path to back side image to the file
+		list.add(backSideImage);
+		
+		//create string with matching pathnames
+		for (int k = 0; k < gameWidth*gameHeight/2; k++){
+			list.add(paths[k][0] + ";" + paths[k][1]);
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * This function creates a two-dimensional string array with paths
+	 * to default files. The size of the array depends on the size of the game.
+	 * 
+	 * @return	two-dimensional string array with paths to default files
+	 */
+	private void defaultImages(){
+	int pairs = gameWidth*gameHeight/2;
 		
 		//get path in order to make pictures working
 		Path currentRelativePath = Paths.get("");
@@ -77,12 +148,10 @@ public class ChoosePictureForm extends JFrame{
 			//System.out.println("Saving path "+ paths[i][0] );
 		}
 		
-		return paths;
 	}
 	
-	private PexesoContainerGL prepareNewGame(String[][] images){
-		//TODO change the back side of card to be absolute and not so hard-coded
-		PexesoContainerGL pexesoPane = new PexesoContainerGL(pane, gameWidth, gameHeight, "zadni-strana-pexesa.png", images);
+	private PexesoContainer prepareNewGame(String[][] images){
+		PexesoContainer pexesoPane = new PexesoContainer(pane, gameWidth, gameHeight, backSideImage, images);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		pexesoPane.createNewGame();
@@ -255,8 +324,8 @@ public class ChoosePictureForm extends JFrame{
 		//defaultImg.setAlignmentX(Component.CENTER_ALIGNMENT);
 		defaultImg.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
-				String[][] images = defaultImages();
-				PexesoContainerGL newGame = prepareNewGame(images);
+				defaultImages();
+				PexesoContainer newGame = prepareNewGame(paths);
 				chosenPexesoPane = newGame;
 				//won't be done here
 				//original.setContentPane(newGame);
@@ -265,6 +334,10 @@ public class ChoosePictureForm extends JFrame{
 		});
 		
 		pane.add(defaultImg);
+		
+		//Vertical space
+		Component strut1 = Box.createVerticalStrut(10);
+		pane.add(strut1);
 		
 		//adding boxes enabling to show choosers on the right places
 		final Box boxForFiles = Box.createVerticalBox();
@@ -276,6 +349,7 @@ public class ChoosePictureForm extends JFrame{
 		customImgPairs.addActionListener(new ActionListener (){
 			public void actionPerformed (ActionEvent e){
 				//remove existing buttons for choosing of images from second button
+				boxForFiles.removeAll();
 				boxForFiles2.removeAll();
 				//add buttons for choosing of the images
 				addButtonsForPairs(boxForFiles);
@@ -287,6 +361,10 @@ public class ChoosePictureForm extends JFrame{
 		pane.add(customImgPairs);
 		pane.add(boxForFiles);
 		
+		//Vertical space
+		Component strut2 = Box.createVerticalStrut(10);
+		pane.add(strut2);
+		
 		//custom radio button - different pairs
 		JRadioButton customImgDiff = new JRadioButton("Use custom images - pairs contain different images");
 		customImgDiff.setActionCommand("customDiff");
@@ -294,6 +372,7 @@ public class ChoosePictureForm extends JFrame{
 			public void actionPerformed (ActionEvent e){
 				//add buttons for choosing of the images
 				boxForFiles.removeAll();
+				boxForFiles2.removeAll();
 				addButtonsForAllImages(boxForFiles2);
 			}
 			
@@ -328,7 +407,25 @@ public class ChoosePictureForm extends JFrame{
 		//save.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		save.addActionListener(new ActionListener () {
 			public void actionPerformed (ActionEvent e){
-				//TODO check file paths and then flush in a text format into a file
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showSaveDialog(currentWindow);
+				File file;
+				
+		    	if (returnVal == JFileChooser.APPROVE_OPTION) {
+		    		file = fc.getSelectedFile();
+		    		if (pathNamesExist()){
+						flushNewGameDataIntoFile(file);
+					}
+					else{
+						showImageError();
+					}
+		   		}
+		    	else{
+		    		JOptionPane.showMessageDialog(currentWindow,
+		    			    "The game has not been saved because no name for the output file has been given.",
+		    			    "Unsaved game warning",
+		    			    JOptionPane.WARNING_MESSAGE);
+		    	}
 			}
 		});
 		
@@ -338,7 +435,6 @@ public class ChoosePictureForm extends JFrame{
 		//finish.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		finish.addActionListener(new ActionListener() {
 			
-			//TODO check that enough files were written
 			public void actionPerformed (ActionEvent e){
 				
 				String actionCommand = getSelectedButton(buttGroup);
@@ -355,7 +451,7 @@ public class ChoosePictureForm extends JFrame{
 					//choose-file fields already created
 					//and take the paths from them and use them to create new game
 					if (pathNamesExist()){
-						PexesoContainerGL customPairs = prepareNewGame(paths);
+						PexesoContainer customPairs = prepareNewGame(paths);
 						chosenPexesoPane = customPairs;
 					}
 					else{
@@ -367,7 +463,7 @@ public class ChoosePictureForm extends JFrame{
 					//choose-file fields already created
 					//and take the paths from them and use them to create new game
 					if (pathNamesExist()){
-						PexesoContainerGL customDiff = prepareNewGame(paths);
+						PexesoContainer customDiff = prepareNewGame(paths);
 						chosenPexesoPane = customDiff;
 					}
 					else{
@@ -386,6 +482,10 @@ public class ChoosePictureForm extends JFrame{
 			}
 		});
 		
+		//Vertical space
+		Component strut3 = Box.createVerticalStrut(10);
+		pane.add(strut3);
+		
 		//Button box
 		Box buttonBox = Box.createHorizontalBox();
 		buttonBox.add(Box.createHorizontalGlue());
@@ -394,6 +494,7 @@ public class ChoosePictureForm extends JFrame{
 		buttonBox.add(save);
 		buttonBox.add(Box.createHorizontalGlue());
 		buttonBox.add(finish);
+		buttonBox.add(Box.createHorizontalGlue());
 		pane.add(buttonBox);
 		
 		this.pack();
