@@ -3,18 +3,25 @@ package pexeso;
 
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import javax.swing.ImageIcon;
 
+
 public class PexesoContainer extends Container {
+	public static final String pathToWinImage = "src/pexeso/win.png";
+	
 	int fieldsCnt;
+	int notFoundPairsCnt;
+	int stepNr;
 	int rows;
 	int columns;
 	JPexesoCard[] turned; //buffer of pressed pexeso cards
 	ImageIcon backPicture; //back side of the cards
+	ImageIcon winningIcon; //winning icon
 	ImageIcon[][] frontPictureTuples;
 	
 	/**
@@ -26,8 +33,13 @@ public class PexesoContainer extends Container {
 		this.fieldsCnt = rows*columns;
 		this.rows = rows;
 		this.columns = columns;
+		this.notFoundPairsCnt = fieldsCnt/2;
+		this.stepNr = 0;
 		this.turned = new JPexesoCard[2];
-		
+		Image big = (new ImageIcon(pathToWinImage)).getImage();
+		Image smaller = big.getScaledInstance(100, 100, 100);
+		this.winningIcon = new ImageIcon(smaller);
+		 
 		if (picturePathOk(pathToPicture)){
 			System.out.println("calling ImageIcon constructor on "+pathToPicture);
 			backPicture = new ImageIcon(pathToPicture);
@@ -79,7 +91,9 @@ public class PexesoContainer extends Container {
 			int randK = shuffled.get(k);
 			
 			//back-picture handling
-			card[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
+			//card[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
+			//old version for testing
+			card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
 			
 			MouseListener onClick = new clickProcessor(this, card[k]);
 			card[k].getButton().addMouseListener(onClick);
@@ -99,6 +113,30 @@ public class PexesoContainer extends Container {
 		return turned;
 	}
 	
+	public boolean lastPairRemains(){
+		if (notFoundPairsCnt == 1){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	public void decreaseNotFound(){
+		notFoundPairsCnt -= 1;
+	}
+	
+	public void addStep(){
+		stepNr++;
+	}
+	
+	public int getStepsNum(){
+		return stepNr;
+	}
+	
+	public ImageIcon getWinningIcon(){
+		return winningIcon;
+	}
 	
 	private boolean picturePathOk(String path){
 		if (path == null) return false;

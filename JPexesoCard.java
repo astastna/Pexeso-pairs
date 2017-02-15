@@ -45,7 +45,7 @@ public class JPexesoCard extends JButton{
 	public void turnToBackSide(){
 		//System.out.println("Function turnToBackSide card "+((Integer) tupleNr).toString()+"-"+((Integer) id).toString());
 		butt.setIcon(cont.backPicture);
-		this.transformImageIcon(cont);
+		//this.transformImageIcon(cont);
 		
 	}
 	
@@ -71,10 +71,12 @@ public class JPexesoCard extends JButton{
 		//scale the image with respect to the ratio
 		Image resizedIcon;
 		if (imgHeight > imgWidth) {
-			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE); 
+			//resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
+			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_SMOOTH);
 		}
 		else {
-			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
+			//resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
+			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_SMOOTH);
 		}
 		
 		//replace the image

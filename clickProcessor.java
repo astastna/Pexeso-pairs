@@ -3,6 +3,8 @@ package pexeso;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JOptionPane;
+
 public class clickProcessor implements MouseListener{
 	JPexesoCard currentCard; //card, which has been clicked on
 	
@@ -17,47 +19,73 @@ public class clickProcessor implements MouseListener{
 	public void mouseReleased(MouseEvent arg0) {
 		JPexesoCard[] turned = game.getTurnedCards();
 		boolean ignore = false;
+		boolean alreadyFoundCard = false;
 		JPexesoCard[] newTurned = new JPexesoCard[2];
 		
-		// dealing with duplicit clicks
+		//current card is in already found tuple
 		if (currentCard.tupleFound){
-			ignore = true; // click on already found tuple
+			//we don't want to do anything
+			newTurned = turned;
+			alreadyFoundCard = true;
+			//ignore = true; // click on already found tuple
 			//System.out.println("Current card is in already found tuple.");
 		}
-		//if (turned[0] != null && turned[0].equals(currentCard)){
+		
+		// dealing with duplicit clicks
+		//already turned and current card are the same - first card
 		if( turned[0] != null && turned[0].tupleNr == currentCard.tupleNr && turned[0].id == currentCard.id){
 			ignore = true; // click on already turned card
 			//System.out.println("Already turned and current card are the same - ignoring.");
 		}
-		//if (turned[1] != null && turned[1].equals(currentCard)){
+		
+		//already turned and current card are the same - second card
 		if( turned[1] != null && turned[1].tupleNr == currentCard.tupleNr && turned[1].id == currentCard.id){
 			ignore = true;
 			//System.out.println("Already turned and current card are the same - ignoring.");
 		}
 		
 		//no card is turned
-		if (turned[0] == null && turned[1] == null && !ignore){
+		if (turned[0] == null && turned[1] == null && !ignore && !alreadyFoundCard){
 			//System.out.println("No card turned now.");
 			newTurned[0] = currentCard;
 			newTurned[1] = null;
 			currentCard.turnToFrontSide();	
-			//System.out.println("Turning front card "+((Integer) currentCard.tupleNr).toString()+"-"+ ((Integer)currentCard.id ).toString() );
+			System.out.println("Turning front card "+((Integer) currentCard.tupleNr).toString()+"-"+ ((Integer)currentCard.id ).toString() );
 		}
 		
 		//one card is turned
-		if (turned[0] != null && turned[1] == null && !ignore){
-			//System.out.println("Already turned is card "+ ((Integer) turned[0].tupleNr).toString()+"-"+((Integer) turned[0].id).toString()+", current card is "+((Integer) currentCard.getTupleNr()).toString()+"-"+((Integer) currentCard.id).toString() );
+		if (turned[0] != null && turned[1] == null && !ignore && !alreadyFoundCard){
+			
+			if (game.lastPairRemains() && turned[0].getTupleNr() == currentCard.getTupleNr()){
+				//game won!
+				game.addStep();
+				currentCard.turnToFrontSide();
+				JOptionPane.showMessageDialog(game,
+					    "You have just won this game! \n"+
+					    "Number of steps needed: "+ ((Integer) game.getStepsNum()).toString(),
+					    "Congratulations",
+					    JOptionPane.INFORMATION_MESSAGE,
+					    game.getWinningIcon());
+
+				
+			}
+			
+			System.out.println("Already turned is card "+ ((Integer) turned[0].tupleNr).toString()+"-"+((Integer) turned[0].id).toString()+", current card is "+((Integer) currentCard.getTupleNr()).toString()+"-"+((Integer) currentCard.id).toString() );
 			//already turned and current card aren't the same
 			newTurned[0] = turned[0];
 			newTurned[1] = currentCard;
 			currentCard.turnToFrontSide();
-			//System.out.println("Turning front card "+((Integer) currentCard.tupleNr).toString()+"-"+ ((Integer)currentCard.id ).toString() );
+			System.out.println("Turning front card "+((Integer) currentCard.tupleNr).toString()+"-"+ ((Integer)currentCard.id ).toString() );
 			//else turned card and clicked card are the same - do nothing
 		}
 		
 		//two cards are turned
-		if(turned[0] != null && turned[1] != null && !ignore){
+		if(turned[0] != null && turned[1] != null && !ignore && !alreadyFoundCard){
 			//System.out.println("Already turned are cards "+ ((Integer) turned[0].tupleNr).toString()+"-"+((Integer) turned[0].id).toString() +" and "+((Integer) turned[1].tupleNr).toString()+"-"+((Integer) turned[1].id).toString()+", current card is "+((Integer) currentCard.getTupleNr()).toString()+"-"+((Integer) currentCard.id).toString() );
+			
+			//another two cards were turned, increment number of needed steps
+			// (it doesn't matter if the turning was or wasn't successful)
+			game.addStep();
 			
 			//tuple found	
 			if (turned[0].getTupleNr() == turned[1].getTupleNr()){
@@ -70,21 +98,22 @@ public class clickProcessor implements MouseListener{
 				//System.out.println("Tuple found! Cards should stay as they are.");
 				turned[0].setFound();
 				turned[1].setFound();
+				game.decreaseNotFound();
 				//TODO ring a bell, make something to make the person know that tuple was found
+				//it is needed because the pairs won't be always the same
 			}
 			//tuple wasn't found
 			else{
-				//System.out.println("Tuple not found! Both cards are turned back.");
+				System.out.println("Tuple not found! Both cards are turned back.");
 				turned[0].turnToBackSide();
 				turned[1].turnToBackSide();
-					
 			}	
 			
 			// behave like no cards were turned before 
 			//so we can't turn them back / because we already turned them back
 			newTurned[0] = currentCard;
 			currentCard.turnToFrontSide();
-			//System.out.println("Turning front card "+((Integer) currentCard.tupleNr).toString()+"-"+ ((Integer) currentCard.id ).toString() );
+			System.out.println("Turning front card "+((Integer) currentCard.tupleNr).toString()+"-"+ ((Integer) currentCard.id ).toString() );
 			newTurned[1] = null;
 		}
 		

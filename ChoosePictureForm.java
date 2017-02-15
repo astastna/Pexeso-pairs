@@ -73,6 +73,14 @@ public class ChoosePictureForm extends JFrame{
 		return null;
 	}
 	
+	private JDialog showInvalidImageError(){
+		JOptionPane.showMessageDialog(currentWindow,
+			    "This image seems to be invalid. \n Please, use another one. \n Remember, that supported format are only jpg, png and gif.",
+			    "Invalid image error",
+			    JOptionPane.ERROR_MESSAGE);
+		return null;
+	}
+	
 	private void flushNewGameDataIntoFile(File file){
 		//open file
 		if (file.exists()){
@@ -185,6 +193,8 @@ public class ChoosePictureForm extends JFrame{
 	private boolean pathNamesExist(){
 		
 		for (int k = 0; k < gameWidth*gameHeight/2; k++){
+			System.out.println("paths["+ ((Integer)k).toString() + "][0]:" + paths[k][0] + 
+					"; paths["+ ((Integer)k).toString() + "][1]:" + paths[k][1]);
 			if (paths[k][0] == "" || paths[k][1] == ""){
 				return false;
 			}
@@ -215,6 +225,7 @@ public class ChoosePictureForm extends JFrame{
 			fileChoosers[j] = new JButton("Image 1 of pair "+ ((Integer)((j+1)/2)).toString() );
 			fileChoosers[j].setActionCommand(((Integer) j).toString());
 			fileChoosers[j+1] = new JButton("Image 2 of pair "+ ((Integer)((j+1)/2)).toString() );
+			fileChoosers[j+1].setActionCommand( ((Integer) (j+1)).toString());
 			
 			//group buttons for a pair together on one line
 			chooserBox[j/2] = Box.createHorizontalBox();
@@ -237,7 +248,7 @@ public class ChoosePictureForm extends JFrame{
 
 			    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 			    		File file = fc[j].getSelectedFile();
-			    		System.out.println("Adding file "+ file.getAbsolutePath() +" to String["+((Integer)(j/2)).toString() +"]["+ ((Integer)(j%2)).toString()+"]");
+			    		System.out.println("DiffPairs: Adding file "+ file.getAbsolutePath() +" to paths["+((Integer)(j/2)).toString() +"]["+ ((Integer)(j%2)).toString()+"]");
 			   			paths[j/2][j%2] = file.getAbsolutePath();
 			   		}
 				}
@@ -290,10 +301,11 @@ public class ChoosePictureForm extends JFrame{
 
 			    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 			    		File file = fc[j].getSelectedFile();
-			    		System.out.println("Adding file "+ file.getAbsolutePath() +" to String["+((Integer)(j/2)).toString() +"]["+ ((Integer)(j%2)).toString()+"]");
+			    		System.out.println("SamePairs: Adding file "+ file.getAbsolutePath() +" to paths["+((Integer)(j)).toString() +"][0] "+ 
+			    				"and paths["+((Integer)(j/2)).toString() +"][1].");
 			    		//adding the image twice for both cards of the pair
-			   			paths[j/2][0] = file.getAbsolutePath();
-			   			paths[j/2][1] = file.getAbsolutePath();
+			   			paths[j][0] = file.getAbsolutePath();
+			   			paths[j][1] = file.getAbsolutePath();
 			   		}
 				}
 			
@@ -453,6 +465,7 @@ public class ChoosePictureForm extends JFrame{
 					if (pathNamesExist()){
 						PexesoContainer customPairs = prepareNewGame(paths);
 						chosenPexesoPane = customPairs;
+						if (customPairs == null) showInvalidImageError();
 					}
 					else{
 						showImageError();
@@ -465,6 +478,7 @@ public class ChoosePictureForm extends JFrame{
 					if (pathNamesExist()){
 						PexesoContainer customDiff = prepareNewGame(paths);
 						chosenPexesoPane = customDiff;
+						if (customDiff == null) showInvalidImageError();
 					}
 					else{
 						showImageError();
