@@ -202,7 +202,7 @@ public class MainWindow {
 		
 		String[][] paths = {firstTuple, secondTuple, thirdTuple, forthTuple};*/
 		
-		PexesoContainer pexesoPane = new PexesoContainer(pane, width, height, backSideImage, paths);
+		PexesoContainer pexesoPane = new PexesoContainer(pane, height, width, backSideImage, paths);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		

@@ -1,10 +1,10 @@
 package pexeso;
 
-import java.awt.Dimension;
+//import java.awt.Dimension;
 import java.awt.Image;
-import java.awt.Rectangle;
+//import java.awt.Rectangle;
 
-import javax.swing.Box;
+//import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
@@ -26,11 +26,16 @@ public class JPexesoCard extends JButton{
 	
 	public JPexesoCard(ImageIcon img, int nr, PexesoContainer c, int id){
 		System.out.println("Adding back icon to card nr "+((Integer) nr).toString());
+		//version with JButton directly
 		this.butt = new JButton(c.backPicture);
-		ImageIcon newBackIcon = transformImageIcon2(c, butt, c.backPicture);
-		butt.setIcon(newBackIcon);
+		
+		//version with additional container for better viewing properties
+		
+		//ImageIcon newBackIcon = transformImageIcon2(c, butt, c.backPicture);
+		//butt.setIcon(newBackIcon);
 		//butt.setText(((Integer) nr).toString());
-		this.front = transformImageIcon2(c, butt, img);
+		//this.front = transformImageIcon2(c, butt, img);
+		this.front = img;
 		c.frontPictureTuples[nr][id] = front;
 		this.tupleNr = nr;
 		this.tupleFound = false;
@@ -67,25 +72,26 @@ public class JPexesoCard extends JButton{
 		
 		System.out.println("Transforming an image icon in transformImageIcon.");
 		// finding out the actual size of the grid cell
+		System.out.println("Container width is " + ((Integer)cont2.getSize().width).toString() + " and height is "+((Integer)cont2.getSize().height).toString());
+		System.out.println("Number of columns is "+ ((Integer)cont2.columns).toString() + " and number of rows is " + ((Integer)cont2.rows).toString());
 		int imgWidth = cont2.getSize().width / cont2.columns;
-		int imgHeight = cont2.getSize().height / cont2.rows;	
+		System.out.println("Img width is "+ ((Integer)imgWidth).toString());
+		int imgHeight = cont2.getSize().height / cont2.rows;
+		System.out.println("Img height is "+ ((Integer)imgHeight).toString());
 		
 		// get image from icon
 		Image originalIcon = ((ImageIcon) this.getButton().getIcon()).getImage(); 
 		
 		//scale the image with respect to the ratio
 		Image resizedIcon;
-		/*if (imgHeight > imgWidth) {
-			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
-			//resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_SMOOTH);
+		if (imgHeight > imgWidth) {
+			//System.out.println("Height is greater than width.");
+			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
 		}
 		else {
-			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
-			//resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_SMOOTH);
-		}*/
-		
-		//only for testing
-		resizedIcon = originalIcon.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_SMOOTH);
+			//System.out.println("Width is greater than height.");
+			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
+		}
 		
 		//replace the image
 		ImageIcon newIcon = new ImageIcon( resizedIcon ); //substitute the old one by the scaled one
@@ -95,29 +101,25 @@ public class JPexesoCard extends JButton{
 	public ImageIcon transformImageIcon2(PexesoContainer cont, JButton butt, ImageIcon orig){
 		
 		System.out.println("Transforming an image icon in transformImageIcon2.");
+		//counting the size of button
 		int imgWidth = cont.getSize().width / cont.columns;
-		int imgHeight = cont.getSize().height / cont.rows;	
-		
-		/*Dimension d = new Dimension(imgWidth, imgHeight);
-		Rectangle r = new Rectangle(d);
-		butt.add(r);*/
+		System.out.println("Img width is "+ ((Integer)imgWidth).toString());
+		int imgHeight = cont.getSize().height / cont.rows;
+		System.out.println("Img height is "+ ((Integer)imgHeight).toString());	
 		
 		// get image from icon
 		Image originalIcon = orig.getImage(); 
 		
-		
 		//scale the image with respect to the ratio
-		Image resizedIcon;// = originalIcon.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_REPLICATE);
-		/*if (imgHeight > imgWidth) {
-			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE); 
+		Image resizedIcon;
+		if (imgHeight > imgWidth) {
+			//System.out.println("Height is greater than width.");
+			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
 		}
 		else {
-			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
-		}*/
-		
-		//only for testing
-		resizedIcon = originalIcon.getScaledInstance(imgWidth, imgHeight, java.awt.Image.SCALE_SMOOTH);
-				
+			//System.out.println("Width is greater than height.");
+			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
+		}				
 		
 		return new ImageIcon( resizedIcon ); //substitute the old one by the scaled one
 		

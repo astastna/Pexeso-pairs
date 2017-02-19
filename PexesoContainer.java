@@ -41,7 +41,7 @@ public class PexesoContainer extends Container {
 		this.winningIcon = new ImageIcon(smaller);
 		 
 		if (picturePathOk(pathToPicture)){
-			System.out.println("calling ImageIcon constructor on "+pathToPicture);
+			//System.out.println("calling ImageIcon constructor on "+pathToPicture);
 			backPicture = new ImageIcon(pathToPicture);
 		}
 		
@@ -49,8 +49,8 @@ public class PexesoContainer extends Container {
 		frontPictureTuples = new ImageIcon[rows*columns/2][2];
 		for (int i=0; i < rows*columns/2; i++){
 			for (int j=0; j < 2; j++){
-				System.out.println("i: "+ ((Integer)i).toString() + " , j: " + ((Integer)j).toString());
-				System.out.println("calling ImageIcon constructor on "+pathsToFrontPictures[i][j]);
+				//System.out.println("i: "+ ((Integer)i).toString() + " , j: " + ((Integer)j).toString());
+				//System.out.println("calling ImageIcon constructor on "+pathsToFrontPictures[i][j]);
 				if (picturePathOk(pathsToFrontPictures[i][j])){
 					frontPictureTuples[i][j] = new ImageIcon(pathsToFrontPictures[i][j]);
 				}
@@ -70,7 +70,7 @@ public class PexesoContainer extends Container {
 	public void createNewGame(){
 
 		//Setup layout and it's constraints
-		GridLayout layout = new GridLayout(columns, rows, 0, 0);
+		GridLayout layout = new GridLayout(rows, columns, 0, 0);
 		
 		this.setLayout(layout);
 		//GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
