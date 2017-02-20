@@ -2,6 +2,7 @@ package pexeso;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 //import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,14 +27,16 @@ public class SizeForm extends JFrame{
 	int defaultHeight;
 	JFrame originalFrame;
 	SizeForm currentSizeForm;
+	String backSideImage;
 	
 	
-	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig){
+	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig, String backSideImage){
 		//System.out.println("Size form constructor: "+ ((Integer) defaultWidth).toString() + " , " + ((Integer) defaultHeight).toString() ) ; 
 		this.defaultWidth = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.currentSizeForm = this;
 		this.originalFrame = orig;
+		this.backSideImage = backSideImage;
 		
 		this.initializeSizeForm();
 	}
@@ -111,6 +114,7 @@ public class SizeForm extends JFrame{
 		
 		//Width-field
 		final JTextField widthField = new JTextField(((Integer)defaultWidth ).toString());
+		widthField.setMaximumSize(new Dimension((widthField.getMaximumSize().width), widthField.getPreferredSize().height));
 		widthField.setAlignmentX(Component.LEFT_ALIGNMENT);
 				
 		//x
@@ -119,6 +123,7 @@ public class SizeForm extends JFrame{
 		
 		//Height-field
 		final JTextField heightField = new JTextField(((Integer)defaultHeight ).toString());
+		heightField.setMaximumSize(new Dimension(heightField.getMaximumSize().width, heightField.getPreferredSize().height));
 		heightField.setAlignmentX(Component.RIGHT_ALIGNMENT);	
 		
 		//Grouping together
@@ -149,7 +154,7 @@ public class SizeForm extends JFrame{
 					//check it
 					if (numOk(widthData) && numOk(heightData) && (widthData * heightData)%2 == 0 ){
 						//correct data -> next step
-						ChoosePictureForm cpf = new ChoosePictureForm(widthData, heightData, originalFrame);
+						ChoosePictureForm cpf = new ChoosePictureForm(widthData, heightData, originalFrame, backSideImage);
 						cpf.setVisible(true);
 						currentSizeForm.dispatchEvent(new WindowEvent(currentSizeForm, WindowEvent.WINDOW_CLOSING));
 					}	
@@ -169,11 +174,16 @@ public class SizeForm extends JFrame{
 		nextBox.add(next);
 		nextBox.add(Box.createHorizontalGlue());
 		
-		pane.add(nextBox);
+		Box vertNext = Box.createVerticalBox();
+		//vertNext.add(Box.createVerticalGlue());
+		vertNext.add(nextBox);
+		vertNext.add(Box.createVerticalGlue());
+		
+		pane.add(vertNext);
 		
 		//Vertical space
-		Component strut = Box.createVerticalStrut(10);
-		pane.add(strut);
+		//Component strut = Box.createVerticalStrut(10);
+		//pane.add(strut);
 		
 		this.pack();
 		

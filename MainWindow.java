@@ -12,6 +12,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 //import java.nio.file.Path;
 //import java.nio.file.Paths;
 //import java.util.List;
@@ -22,6 +25,7 @@ public class MainWindow {
 	//private PexesoContainerGL myPexeso;
 	private final static int defaultGameWidth = 4;
 	private final static int defaultGameHeight = 4;
+	private static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
 	
 	
 	private static void createAndShowGUI() {
@@ -75,7 +79,7 @@ public class MainWindow {
 	private static JMenuBar createMenus(final JFrame frame){
 		JMenuBar menuBar;
 		JMenu menu;
-		JMenuItem newGameItem, existingGameItem, quitItem;
+		JMenuItem newGameItem, existingGameItem, backSideSetup, quitItem;
 
 		menuBar = new JMenuBar();
 
@@ -91,21 +95,23 @@ public class MainWindow {
 		newGameItem = new JMenuItem("Create new game",
 		                         KeyEvent.VK_T);
 		newGameItem.setAccelerator(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_1, ActionEvent.ALT_MASK));
+		        java.awt.event.KeyEvent.VK_N, 
+		        java.awt.Event.CTRL_MASK));
 		newGameItem.getAccessibleContext().setAccessibleDescription(
 		        "Creates a form for new game.");
 		newGameItem.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
-				SizeForm newGameForm = new SizeForm(defaultGameWidth, defaultGameHeight, frame);
+				SizeForm newGameForm = new SizeForm(defaultGameWidth, defaultGameHeight, frame, backSideImage);
 				newGameForm.setVisible(true);
 			}
 		});
 		menu.add(newGameItem);
 		
 		//Play existing game item
-		existingGameItem = new JMenuItem("Play an existing game", KeyEvent.VK_T);
+		existingGameItem = new JMenuItem("Load an existing game", KeyEvent.VK_T);
 		existingGameItem.setAccelerator(KeyStroke.getKeyStroke(
-		        KeyEvent.VK_2, ActionEvent.ALT_MASK));
+		        java.awt.event.KeyEvent.VK_L, 
+		        java.awt.Event.CTRL_MASK));
 		existingGameItem.getAccessibleContext().setAccessibleDescription(
 		        "Choose an existing game from file.");
 		existingGameItem.addActionListener(new ActionListener() {
@@ -116,7 +122,7 @@ public class MainWindow {
 				
 		    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    		file = fc.getSelectedFile();
-		    		PexesoContainer pc = loadGame(frame.getContentPane(), file);
+		    		PexesoContainer pc = loadGame(frame, file);
 		    		if (pc != null) {
 		    			System.out.println("Setting the non-null content pane.");
 		    			frame.setContentPane(pc);
@@ -137,6 +143,37 @@ public class MainWindow {
 			}
 		});
 		menu.add(existingGameItem);
+		
+		//Back-side image setup
+		backSideSetup = new JMenuItem("Setup back-side image");
+		backSideSetup.addActionListener(new ActionListener() {
+			public void actionPerformed (ActionEvent e){
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(frame);
+				File file;
+				
+		    	if (returnVal == JFileChooser.APPROVE_OPTION) {
+		    		file = fc.getSelectedFile();
+		    		String path = file.getAbsolutePath();
+		    		
+		    		if (imageOk(path)) {
+		    			backSideImage = path;
+		    		}
+		    		else {
+		    			System.out.println("Back-side image is wrong.");
+		    			showImageError(frame);
+		    		}
+		   		}
+		    	else{
+		    		JOptionPane.showMessageDialog(frame,
+		    			    "The image chosen isn't correct.",
+		    			    "Wrong input image warining",
+		    			    JOptionPane.WARNING_MESSAGE);
+		    	}
+			}
+		});
+		menu.add(backSideSetup);
+		
 		
 		//Quit
 		quitItem = new JMenuItem("Quit");
@@ -192,6 +229,14 @@ public class MainWindow {
 			    JOptionPane.WARNING_MESSAGE);
 	}
 	
+	private static void showImageError(JFrame f){
+		JOptionPane.showMessageDialog(f,
+			    "There is a wrong path to image in the game being loaded. \n Check that that the image path is correct and \n that it contains a valid image. \n"+
+			    " Suported image types are JPG, GIF and PNG.",
+			    "Image error",
+			    JOptionPane.ERROR_MESSAGE);
+	}
+	
 	private static PexesoContainer createNewPexeso(Container pane, String[][] paths, int width, int height, String backSideImage){
 		
 		// manual initialization for testing
@@ -210,7 +255,7 @@ public class MainWindow {
 		
 	}
 	
-	private static PexesoContainer loadGame(Container pane, File file){
+	private static PexesoContainer loadGame(JFrame frame, File file){
 		int width = 0;
 		int height = 0;
 		String line;
@@ -255,15 +300,19 @@ public class MainWindow {
 					if (split.length != 2){
 						return null;
 					}
-					paths[lineNum-3][0] = split[0];
-					paths[lineNum-3][1] = split[1];
+					if (imageOk(split[0])) paths[lineNum-3][0] = split[0];
+					else showImageError(frame);
+					
+					if (imageOk(split[1])) paths[lineNum-3][1] = split[1];
+					else showImageError(frame);
+					
 					lineNum++;
 					split[0] = "";
 					split[1] = "";
 				}
 			}
 			
-			PexesoContainer pc = createNewPexeso(pane, paths, width, height, backsideImage);
+			PexesoContainer pc = createNewPexeso(frame.getContentPane(), paths, width, height, backsideImage);
 			pc.createNewGame();
 			return pc;
 		}
@@ -274,54 +323,20 @@ public class MainWindow {
 	}
 	
 	
-	/* Want to use somewhere!
+	/**
 	 * 
 	 * Returns an ImageIcon, or null if the path was invalid.
-    protected static ImageIcon createImageIcon(String path) {
-        java.net.URL imgURL = DialogDemo.class.getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL);
+	 */
+    protected static boolean imageOk(String path) {
+    	Path filePath = Paths.get(path);
+    	return Files.exists(filePath, LinkOption.NOFOLLOW_LINKS);
+    	/*java.net.URL testURL = MainWindow.getResource(path);
+        if (testURL != null) {
+            return true;
         } else {
             System.err.println("Couldn't find file: " + path);
-            return null;
-        }
-    }*/
-	
-	
-	/*ImageIcon backSide = new ImageIcon("/home/anet/MFF/Zapocet/zadni-strana-pexesa.png");
-	JLabel[] backPictures = new JLabel[16];
-	GridBagConstraints[] gbc = new GridBagConstraints[16];
-	for (int j = 0; j < 16; j++){
-		gbc[j] = new GridBagConstraints();
-	}*/
-	
-	
-/*	for (int i = 0; i < 16; i++){
-		
-		backPictures[i] = new JLabel(backSide);
-		backPictures[i].setText("Label nr."+((Integer)i).toString());
-		gbc[i].gridx = i%4;
-		gbc[i].gridy = i/4;
-		gbc[i].fill = GridBagConstraints.BOTH;
-		//gbc[i].gridwidth = GridBagConstraints.RELATIVE;
-		layout.setConstraints(backPictures[i], gbc[i]);
-		
-		//backPictures[i].setBorderPainted(false);
-		//backPictures[i].setFocusPainted(false);
-		//backPictures[i].setContentAreaFilled(false)
-		System.out.println();
-		
-		//resize the image icon to fit the button in the grid
-		int imgWidth = (int) backPictures[i].getPreferredSize().getWidth();
-		int imgHeight = (int) backPictures[i].getPreferredSize().getHeight();
-		System.out.printf("Size of the button is %s \n", backPictures[i].getPreferredSize());
-		Image backSideImg = backSide.getImage(); // get image from icon
-		Image backSideImgScaled = backSideImg.getScaledInstance(imgWidth/2, imgHeight/2, java.awt.Image.SCALE_SMOOTH); //scale it
-		backSide = new ImageIcon( backSideImgScaled ); //substitute the old one by the scaled one
-		backPictures[i].setIcon(backSide);
-		pane.add(backPictures[i]);
-		
-	}*/
-	
+            return false;
+        }*/
+    }
 	
 }

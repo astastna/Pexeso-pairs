@@ -39,8 +39,9 @@ public class ChoosePictureForm extends JFrame{
 	private static final long serialVersionUID = 1L;
 	
 	//TODO enable user to choose own back side image
-	private final static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
+	//private final static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
 	
+	String backSideImage;
 	int gameWidth;
 	int gameHeight;
 	JFrame original;
@@ -49,12 +50,13 @@ public class ChoosePictureForm extends JFrame{
 	PexesoContainer chosenPexesoPane;
 	String[][] paths;
 	
-	public ChoosePictureForm(int width, int height, JFrame orig){
+	public ChoosePictureForm(int width, int height, JFrame orig, String backSideImage){
 		this.gameWidth = width;
 		this.gameHeight = height;
 		this.pane = this.getContentPane();
 		this.original = orig;
 		this.currentWindow = this;
+		this.backSideImage = backSideImage;
 		
 		this.paths = new String[gameWidth*gameHeight/2][2];
 		for (int i=0; i < gameWidth*gameHeight/2; i++){
@@ -160,10 +162,12 @@ public class ChoosePictureForm extends JFrame{
 	
 	private PexesoContainer prepareNewGame(String[][] images){
 		PexesoContainer pexesoPane = new PexesoContainer(pane, gameWidth, gameHeight, backSideImage, images);
+		if (pexesoPane == null) System.out.println("Constructor returned null.");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		pexesoPane.createNewGame();
 		
+		if (pexesoPane == null) System.out.println("PexesoPane became null.");
 		return pexesoPane;
 	}
 	
@@ -333,15 +337,11 @@ public class ChoosePictureForm extends JFrame{
 		//default radio button
 		JRadioButton defaultImg = new JRadioButton("Use default images");
 		defaultImg.setActionCommand("default");
+		defaultImg.setSelected(true);
 		//defaultImg.setAlignmentX(Component.CENTER_ALIGNMENT);
 		defaultImg.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
-				defaultImages();
-				PexesoContainer newGame = prepareNewGame(paths);
-				chosenPexesoPane = newGame;
-				//won't be done here
-				//original.setContentPane(newGame);
-				//currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
+				//everything will be done after pressing Finish button
 			}
 		});
 		
@@ -390,7 +390,6 @@ public class ChoosePictureForm extends JFrame{
 			
 		});
 		
-		//customImgDiff.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pane.add(customImgDiff);
 		pane.add(boxForFiles2);
 		
@@ -400,6 +399,7 @@ public class ChoosePictureForm extends JFrame{
 		buttGroup.add(customImgPairs);
 		buttGroup.add(customImgDiff);
 		
+		
 		//Back button
 		JButton back = new JButton("Back");
 		//back.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -407,7 +407,7 @@ public class ChoosePictureForm extends JFrame{
 		back.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
 				//System.out.println("Size form calling: "+ ((Integer) gameWidth).toString() + " , " + ((Integer) gameHeight).toString() ) ;
-				SizeForm changeSize = new SizeForm(gameWidth, gameHeight, original);
+				SizeForm changeSize = new SizeForm(gameWidth, gameHeight, original, backSideImage);
 				changeSize.setVisible(true);
 				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
 			}
@@ -455,8 +455,18 @@ public class ChoosePictureForm extends JFrame{
 				switch (actionCommand){
 				
 				case "default":
-					//all work already done when pressing the radio button
+					defaultImages();
+					PexesoContainer newGame = prepareNewGame(paths);
+					if (newGame == null) //TODO add some error
+						System.out.println("prepareNewGame returned null.");
+					else {
+						chosenPexesoPane = newGame;
+					}
 					System.out.println("Default game chosen.");
+					
+					//view created game
+					original.setContentPane(chosenPexesoPane);
+					
 					break;
 					
 				case "customPairs":
@@ -466,6 +476,9 @@ public class ChoosePictureForm extends JFrame{
 						PexesoContainer customPairs = prepareNewGame(paths);
 						chosenPexesoPane = customPairs;
 						if (customPairs == null) showInvalidImageError();
+						else {//view created game
+							original.setContentPane(chosenPexesoPane);
+						}
 					}
 					else{
 						showImageError();
@@ -479,6 +492,9 @@ public class ChoosePictureForm extends JFrame{
 						PexesoContainer customDiff = prepareNewGame(paths);
 						chosenPexesoPane = customDiff;
 						if (customDiff == null) showInvalidImageError();
+						else {//view created game
+							original.setContentPane(chosenPexesoPane);
+						}
 					}
 					else{
 						showImageError();
@@ -489,8 +505,7 @@ public class ChoosePictureForm extends JFrame{
 					System.out.println("It doesn't work this way.");
 				}
 				
-				//view created game
-				original.setContentPane(chosenPexesoPane);
+				
 				//close window
 				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
 			}
