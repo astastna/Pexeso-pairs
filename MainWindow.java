@@ -15,13 +15,14 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-//import java.nio.file.Path;
-//import java.nio.file.Paths;
-//import java.util.List;
 
 import javax.swing.*;
 
 public class MainWindow {	
+	/**
+	 * 
+	 */
+	
 	private final static int defaultGameWidth = 4;
 	private final static int defaultGameHeight = 4;
 	private static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
