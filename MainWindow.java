@@ -25,7 +25,7 @@ public class MainWindow {
 	
 	private final static int defaultGameWidth = 4;
 	private final static int defaultGameHeight = 4;
-	private static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
+	private static String backSideImage = "src/resources/back-side.png";
 	
 	
 	private static void createAndShowGUI() {

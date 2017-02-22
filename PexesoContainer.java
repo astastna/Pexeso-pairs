@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
 
 
 public class PexesoContainer extends Container {
-	public static final String pathToWinImage = "src/pexeso/win.png";
+	public static final String pathToWinImage = "src/resources/win.png";
 	
 	int fieldsCnt; //number of fields
 	int notFoundPairsCnt; //counter for pairs, which weren't matched yet

@@ -12,7 +12,7 @@ class ResizeListener implements ComponentListener {
     
     public void componentResized(ComponentEvent e) {
 	
-    	Dimension newSize = e.getComponent().getBounds().getSize();          
+    	Dimension newSize = e.getComponent().getBounds().getSize();        
 	}   
 }
 

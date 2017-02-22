@@ -181,8 +181,8 @@ public class ChoosePictureForm extends JFrame{
 		
 		//save the paths to files
 		for (int i = 0; i < pairs; i++){
-			paths[i][0] = s + "/src/pexeso/img" + ((Integer) i).toString() + ".jpg";
-			paths[i][1] = s + "/src/pexeso/img" + ((Integer) i).toString() + ".jpg";
+			paths[i][0] = s + "/src/resources/img" + ((Integer) i).toString() + ".jpg";
+			paths[i][1] = s + "/src/resources/img" + ((Integer) i).toString() + ".jpg";
 		}
 		
 	}
