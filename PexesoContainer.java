@@ -14,9 +14,9 @@ import javax.swing.ImageIcon;
 public class PexesoContainer extends Container {
 	public static final String pathToWinImage = "src/pexeso/win.png";
 	
-	int fieldsCnt;
-	int notFoundPairsCnt;
-	int stepNr;
+	int fieldsCnt; //number of fields
+	int notFoundPairsCnt; //counter for pairs, which weren't matched yet
+	int stepNr; //variable for number of tuple of cards shown needed to complete the game
 	int rows;
 	int columns;
 	JPexesoCard[] turned; //buffer of pressed pexeso cards
@@ -24,9 +24,6 @@ public class PexesoContainer extends Container {
 	ImageIcon winningIcon; //winning icon
 	ImageIcon[][] frontPictureTuples;
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
 	public PexesoContainer(Container container, int rows, int columns, String pathToPicture, String[][] pathsToFrontPictures){
@@ -41,7 +38,6 @@ public class PexesoContainer extends Container {
 		this.winningIcon = new ImageIcon(smaller);
 		 
 		if (picturePathOk(pathToPicture)){
-			//System.out.println("calling ImageIcon constructor on "+pathToPicture);
 			backPicture = new ImageIcon(pathToPicture);
 		}
 		
@@ -49,31 +45,25 @@ public class PexesoContainer extends Container {
 		frontPictureTuples = new ImageIcon[rows*columns/2][2];
 		for (int i=0; i < rows*columns/2; i++){
 			for (int j=0; j < 2; j++){
-				//System.out.println("i: "+ ((Integer)i).toString() + " , j: " + ((Integer)j).toString());
-				//System.out.println("calling ImageIcon constructor on "+pathsToFrontPictures[i][j]);
 				if (picturePathOk(pathsToFrontPictures[i][j])){
 					frontPictureTuples[i][j] = new ImageIcon(pathsToFrontPictures[i][j]);
 				}
 			}
 		}
-		//TODO copy all properties from container
-	}
-
-	public PexesoContainer() {
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param pathToBackPicture - path to picture, which will be shown as a back side of the pexeso cards
+	 * Prepares the {@link PexesoContainer} for starting of new game. 
+	 * Places shuffled cards on the game board and adds the click processing logic to them. 
+	 * 
+	 * @param pathToBackPicture - path to picture, which will be shown as a back side of the cards
 	 * 
 	 */
 	public void createNewGame(){
 
-		//Setup layout and it's constraints
+		//Setup layout
 		GridLayout layout = new GridLayout(rows, columns, 0, 0);
-		
 		this.setLayout(layout);
-		//GridBagConstraints constraints[] = new GridBagConstraints[fieldsCnt];
 		
 		//initializing cards and placing them on the game board
 		JPexesoCard card[] = new JPexesoCard[fieldsCnt];
@@ -91,10 +81,11 @@ public class PexesoContainer extends Container {
 			int randK = shuffled.get(k);
 			
 			//back-picture handling
-			//card[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
-			//old version for testing
-			card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
+			card[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
+			//version without shuffling for testing
+			//card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
 			
+			//adds the logic - what happens after clicking
 			MouseListener onClick = new clickProcessor(this, card[k]);
 			card[k].getButton().addMouseListener(onClick);
 			
@@ -105,14 +96,29 @@ public class PexesoContainer extends Container {
 		}
 	}
 	
+	/**
+	 * Sets cards from the field to be turned up.
+	 * 
+	 * @param cards	Array with cards which should be turned up.
+	 */
 	public void setTurnedCards(JPexesoCard[] cards){
 		turned = cards;
 	}
 	
+	/**
+	 * Gives the information about cards which are turned up.
+	 * 
+	 * @return turned	Array of cards which are currently turned up.
+	 */
 	public JPexesoCard[] getTurnedCards(){
 		return turned;
 	}
 	
+	/**
+	 * Gives the information if all but one pairs are already found.
+	 * 
+	 * @return true if there is only one pair left
+	 */
 	public boolean lastPairRemains(){
 		if (notFoundPairsCnt == 1){
 			return true;
@@ -122,22 +128,47 @@ public class PexesoContainer extends Container {
 		}
 	}
 	
+	/**
+	 * Decreases the notFoundPairs attribute of {@link PexesoContainer}.
+	 */
 	public void decreaseNotFound(){
 		notFoundPairsCnt -= 1;
 	}
 	
+	/**
+	 * Increments the stepNr attribute of {@link PexesoContainer}.
+	 */
 	public void addStep(){
 		stepNr++;
 	}
 	
+
+	/**
+	 * Returns the stepNr attribute of {@link PexesoContainer}.
+	 *
+	 *@return stepNr	Number of doubles of images needed to be shown till now in the game.
+	 */
 	public int getStepsNum(){
 		return stepNr;
 	}
 	
+	/**
+	 * Returns icon to be used in the winning dialog.
+	 * 
+	 * @return	winningIcon	Returns the icon to show to the winning player.
+	 */
 	public ImageIcon getWinningIcon(){
 		return winningIcon;
 	}
 	
+	/**
+	 * This function gives information whether the path ends with .jpg, .gif or .png,
+	 * which are the supported image formats. It DOESN'T CHECK that the file contains
+	 * data in the specified format.
+	 * 
+	 * @param path	String with path to a file.
+	 * @return	True if the path ends with .jpg, .gif or .png.
+	 */
 	private boolean picturePathOk(String path){
 		if (path == null) return false;
 		

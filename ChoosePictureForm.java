@@ -23,10 +23,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 
@@ -38,17 +38,14 @@ public class ChoosePictureForm extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	//TODO enable user to choose own back side image
-	//private final static String backSideImage = "/home/anet/MFF/Java/workspace/Pexeso/src/pexeso/back-side.png";
-	
-	String backSideImage;
+	String backSideImage; //current back side image (for this game)
 	int gameWidth;
 	int gameHeight;
-	JFrame original;
-	ChoosePictureForm currentWindow;
+	JFrame original; //the main window of the application
+	ChoosePictureForm currentWindow; //this window
 	Container pane;
-	PexesoContainer chosenPexesoPane;
-	String[][] paths;
+	PexesoContainer chosenPexesoPane; //game board
+	String[][] paths; //paths to the front images
 	
 	public ChoosePictureForm(int width, int height, JFrame orig, String backSideImage){
 		this.gameWidth = width;
@@ -67,22 +64,37 @@ public class ChoosePictureForm extends JFrame{
 		initializeChoosePictureForm();
 	}
 	
-	private JDialog showImageError(){
+	/**
+	 * Shows an error dialog with message about lack of given images.
+	 */
+	private void showImageError(){
 		JOptionPane.showMessageDialog(currentWindow,
 			    "Not enough images loaded. \n Please, use all the buttons for choosing the images. \n If you want to change the size of game, use the \"Back\" button.",
 			    "Absence of image error",
 			    JOptionPane.ERROR_MESSAGE);
-		return null;
 	}
 	
-	private JDialog showInvalidImageError(){
+	/**
+	 * Shows an error dialog with message about wrong picture.
+	 */
+	private void showInvalidImageError(){
 		JOptionPane.showMessageDialog(currentWindow,
 			    "This image seems to be invalid. \n Please, use another one. \n Remember, that supported format are only jpg, png and gif.",
 			    "Invalid image error",
 			    JOptionPane.ERROR_MESSAGE);
-		return null;
 	}
 	
+	/**
+	 * Flushes the data from user to a file, which is given as the parameter.
+	 * The format of the file is human readable/editable and can be used to
+	 * quickly load the same game again.
+	 * <p>
+	 * This function is rather a shell with a GUI and uses a different 
+	 * function to do the file and data manipulation.
+	 * 
+	 * 
+	 * @param file	File to which the data should be given.
+	 */
 	private void flushNewGameDataIntoFile(File file){
 		//open file
 		if (file.exists()){
@@ -95,21 +107,25 @@ public class ChoosePictureForm extends JFrame{
 			//overwrite it if user agrees
 			if (userOutput == JOptionPane.YES_OPTION){
 				writeDataToFile(file);
-				System.out.println("Output should be succesfully rewritten.");
-			}
+			}//else don't do anything, because user don't want to override the file
 		}
 		else{
 			//file doesn't exist
 			writeDataToFile(file);
-			System.out.println("Output should be succesfully written.");
 		}
 	}
 	
+	/**
+	 * Writes the game parameters to a specified file.
+	 * This function really handles with writing to the file.
+	 * 
+	 * @param file	File to which the data should be given.
+	 */
 	private void writeDataToFile(File file){
 		try{
 			Charset utf8 = StandardCharsets.UTF_8;
-			List<String> lines = getDataIntoList();
-			Files.write(Paths.get(file.getAbsolutePath()), lines, utf8);
+			List<String> lines = getDataIntoList(); //here the data about the game are processed into the right format
+			Files.write(Paths.get(file.getAbsolutePath()), lines, utf8); //writing the list with strings into a file
 		}
 		catch (IOException e) {
 			JOptionPane.showMessageDialog(currentWindow,
@@ -121,6 +137,12 @@ public class ChoosePictureForm extends JFrame{
 		}
 	}
 	
+	/**
+	 * This function collects the game parameters specified by the user 
+	 * and flushes them into the file.
+	 * 
+	 * @return {@link ArrayList} with lines of the output file.
+	 */
 	private List<String> getDataIntoList(){
 		ArrayList<String> list = new ArrayList<String>();
 		
@@ -132,8 +154,13 @@ public class ChoosePictureForm extends JFrame{
 		list.add(backSideImage);
 		
 		//create string with matching pathnames
-		for (int k = 0; k < gameWidth*gameHeight/2; k++){
-			list.add(paths[k][0] + ";" + paths[k][1]);
+		if (pathNamesExist()){
+			for (int k = 0; k < gameWidth*gameHeight/2; k++){
+				list.add(paths[k][0] + ";" + paths[k][1]);
+			}
+		}
+		else{
+			showImageError();
 		}
 		
 		return list;
@@ -142,8 +169,8 @@ public class ChoosePictureForm extends JFrame{
 	/**
 	 * This function creates a two-dimensional string array with paths
 	 * to default files. The size of the array depends on the size of the game.
-	 * 
-	 * @return	two-dimensional string array with paths to default files
+	 * The resulting two-dimensional string array with paths to default files 
+	 * is saved as the attribute.
 	 */
 	private void defaultImages(){
 	int pairs = gameWidth*gameHeight/2;
@@ -152,22 +179,28 @@ public class ChoosePictureForm extends JFrame{
 		Path currentRelativePath = Paths.get("");
 		String s = currentRelativePath.toAbsolutePath().toString();
 		
+		//save the paths to files
 		for (int i = 0; i < pairs; i++){
 			paths[i][0] = s + "/src/pexeso/img" + ((Integer) i).toString() + ".jpg";
 			paths[i][1] = s + "/src/pexeso/img" + ((Integer) i).toString() + ".jpg";
-			//System.out.println("Saving path "+ paths[i][0] );
 		}
 		
 	}
 	
+	/**
+	 * Creating a new {@link PexesoContainer} from parameters.
+	 * Almost all needed parameters are attributes of this object, only paths
+	 * to the front images are specified.
+	 * 
+	 * @param images	Paths (Strings) to the front images.
+	 * @return	pexesoPane	Returns new {@link PexesoContainer}, which is playable.
+	 */
 	private PexesoContainer prepareNewGame(String[][] images){
 		PexesoContainer pexesoPane = new PexesoContainer(pane, gameWidth, gameHeight, backSideImage, images);
-		if (pexesoPane == null) System.out.println("Constructor returned null.");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		pexesoPane.createNewGame();
 		
-		if (pexesoPane == null) System.out.println("PexesoPane became null.");
 		return pexesoPane;
 	}
 	
@@ -175,7 +208,7 @@ public class ChoosePictureForm extends JFrame{
 	 * Returns action command from currently selected {@link AbstractButton}. 
 	 * 
 	 * @param buttonGroup {@link ButtonGroup} in which the selected button is searched
-	 * @return	string {@link actionCommand} from the selected button
+	 * @return	string {@code actionCommand} from the selected button
 	 */
 	public String getSelectedButton(ButtonGroup buttonGroup) {
         for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
@@ -197,8 +230,6 @@ public class ChoosePictureForm extends JFrame{
 	private boolean pathNamesExist(){
 		
 		for (int k = 0; k < gameWidth*gameHeight/2; k++){
-			System.out.println("paths["+ ((Integer)k).toString() + "][0]:" + paths[k][0] + 
-					"; paths["+ ((Integer)k).toString() + "][1]:" + paths[k][1]);
 			if (paths[k][0] == "" || paths[k][1] == ""){
 				return false;
 			}
@@ -208,7 +239,7 @@ public class ChoosePictureForm extends JFrame{
 	}
 	
 	/**
-	 * Function for adding {@link JFileChoosers}. This function creates two file choosers 
+	 * Function for adding {@link JFileChooser}. This function creates two file choosers 
 	 * for every pair of images, because two of them are needed, as the images 
 	 * in pairs aren't the same.
 	 * <p>
@@ -252,7 +283,6 @@ public class ChoosePictureForm extends JFrame{
 
 			    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 			    		File file = fc[j].getSelectedFile();
-			    		System.out.println("DiffPairs: Adding file "+ file.getAbsolutePath() +" to paths["+((Integer)(j/2)).toString() +"]["+ ((Integer)(j%2)).toString()+"]");
 			   			paths[j/2][j%2] = file.getAbsolutePath();
 			   		}
 				}
@@ -263,7 +293,7 @@ public class ChoosePictureForm extends JFrame{
 	}
 	
 	/**
-	 * Function for adding {@link JFileChoosers}. This function creates a file chooser 
+	 * Function for adding {@link JFileChooser}. This function creates a file chooser 
 	 * for every pair of images, because only one is needed, as 
 	 * the images in pair are the same.
 	 * <p>
@@ -288,8 +318,6 @@ public class ChoosePictureForm extends JFrame{
 			chooserBox[j/2].add(Box.createHorizontalGlue());
 			chooserBox[j/2].add(fileChoosers[j/2]);
 			chooserBox[j/2].add(Box.createHorizontalGlue());
-			System.out.println("Adding button for image pair "+ ((Integer)(j/2)).toString());
-			//pane.add(chooserBox[j/2]);
 			box.add(chooserBox[j/2]);
 			currentWindow.pack();
 		}
@@ -318,6 +346,9 @@ public class ChoosePictureForm extends JFrame{
 		
 	}
 	
+	/**
+	 * Sets all the labels, text fields, texts and buttons to the form.
+	 */
 	private void initializeChoosePictureForm(){
 		BoxLayout box = new BoxLayout(pane, BoxLayout.Y_AXIS);
 		pane.setLayout(box);
@@ -338,7 +369,6 @@ public class ChoosePictureForm extends JFrame{
 		JRadioButton defaultImg = new JRadioButton("Use default images");
 		defaultImg.setActionCommand("default");
 		defaultImg.setSelected(true);
-		//defaultImg.setAlignmentX(Component.CENTER_ALIGNMENT);
 		defaultImg.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
 				//everything will be done after pressing Finish button
@@ -369,7 +399,6 @@ public class ChoosePictureForm extends JFrame{
 			
 		});
 		
-		//customImgPairs.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pane.add(customImgPairs);
 		pane.add(boxForFiles);
 		
@@ -402,11 +431,8 @@ public class ChoosePictureForm extends JFrame{
 		
 		//Back button
 		JButton back = new JButton("Back");
-		//back.setAlignmentX(Component.LEFT_ALIGNMENT);
-		//back.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		back.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
-				//System.out.println("Size form calling: "+ ((Integer) gameWidth).toString() + " , " + ((Integer) gameHeight).toString() ) ;
 				SizeForm changeSize = new SizeForm(gameWidth, gameHeight, original, backSideImage);
 				changeSize.setVisible(true);
 				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
@@ -415,8 +441,6 @@ public class ChoosePictureForm extends JFrame{
 		
 		//Save button
 		JButton save = new JButton("Save this new game");
-		//save.setAlignmentX(Component.LEFT_ALIGNMENT);
-		//save.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		save.addActionListener(new ActionListener () {
 			public void actionPerformed (ActionEvent e){
 				JFileChooser fc = new JFileChooser();
@@ -443,8 +467,6 @@ public class ChoosePictureForm extends JFrame{
 		
 		//Finish button
 		JButton finish = new JButton("Finish");
-		//finish.setAlignmentX(Component.RIGHT_ALIGNMENT);
-		//finish.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 		finish.addActionListener(new ActionListener() {
 			
 			public void actionPerformed (ActionEvent e){
@@ -457,12 +479,15 @@ public class ChoosePictureForm extends JFrame{
 				case "default":
 					defaultImages();
 					PexesoContainer newGame = prepareNewGame(paths);
-					if (newGame == null) //TODO add some error
+					if (newGame == null){
 						System.out.println("prepareNewGame returned null.");
+						JOptionPane.showMessageDialog(currentWindow,
+		    			    "Something went wrong with creation of the new game.",
+		    			    "Unknown error",
+		    			    JOptionPane.ERROR_MESSAGE);}
 					else {
 						chosenPexesoPane = newGame;
 					}
-					System.out.println("Default game chosen.");
 					
 					//view created game
 					original.setContentPane(chosenPexesoPane);
@@ -505,6 +530,11 @@ public class ChoosePictureForm extends JFrame{
 					System.out.println("It doesn't work this way.");
 				}
 				
+				//update the main frame
+	    		JMenuBar menuBar = MainWindow.createMenus(original);
+	    		original.setJMenuBar(menuBar);
+	    		original.validate();
+	    		original.pack();
 				
 				//close window
 				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));

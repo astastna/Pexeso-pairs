@@ -11,7 +11,6 @@ import java.awt.event.WindowEvent;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,15 +22,15 @@ public class SizeForm extends JFrame{
 	//Warning! When getting this one greater, you must also add enough default images accordingly
 	private final static int maxSize = 8; 
 	
+	//default game dimensions
 	int defaultWidth;
 	int defaultHeight;
-	JFrame originalFrame;
-	SizeForm currentSizeForm;
-	String backSideImage;
+	JFrame originalFrame; //the main window of the application
+	SizeForm currentSizeForm; //this window
+	String backSideImage; //current back side image (for this game)
 	
 	
-	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig, String backSideImage){
-		//System.out.println("Size form constructor: "+ ((Integer) defaultWidth).toString() + " , " + ((Integer) defaultHeight).toString() ) ; 
+	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig, String backSideImage){ 
 		this.defaultWidth = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.currentSizeForm = this;
@@ -41,23 +40,32 @@ public class SizeForm extends JFrame{
 		this.initializeSizeForm();
 	}
 	
-	private JDialog showRangeError(){
+	/**
+	 * Shows an error dialog with message about wrong number format or value.
+	 */
+	private void showRangeError(){
 		JOptionPane.showMessageDialog(currentSizeForm,
 			    "Range or value error. \n Please, insert natural numbers between 1 and "+((Integer) maxSize).toString() + "\n At least one of the numbers have to be odd.",
 			    "Number value error",
 			    JOptionPane.ERROR_MESSAGE);
-		return null;
-		
 	}
 	
-	private JDialog showNumberFormatError(){
+	/**
+	 * Shows an error dialog with message about wrong number format.
+	 */
+	private void showNumberFormatError(){
 		JOptionPane.showMessageDialog(currentSizeForm,
 			    "Wrong number format. \n Please insert numbers in a valid format.",
 			    "Number format error",
 			    JOptionPane.ERROR_MESSAGE);
-		return null;
 	}
 	
+	/**
+	 * Checks if the given number is in the specified range.
+	 * 
+	 * @param num	The number to be checked (width / height of the game board)
+	 * @return	True if greater than 0 and less or equal maximum allowed value.
+	 */
 	private boolean numOk(int num){
 		if (num > 0 && num <= maxSize){
 			return true;
@@ -67,12 +75,14 @@ public class SizeForm extends JFrame{
 		}
 	}
 	
+	/**
+	 * Sets all the labels, text fields, texts and buttons to the form.
+	 */
 	private void initializeSizeForm(){
 		
 		Container pane = this.getContentPane();
 		BoxLayout box = new BoxLayout(pane, BoxLayout.Y_AXIS);
 		pane.setLayout(box);
-		//TODO unable to close window
 		
 		
 		//Title text
@@ -126,7 +136,7 @@ public class SizeForm extends JFrame{
 		heightField.setMaximumSize(new Dimension(heightField.getMaximumSize().width, heightField.getPreferredSize().height));
 		heightField.setAlignmentX(Component.RIGHT_ALIGNMENT);	
 		
-		//Grouping together
+		//Grouping together in horizontal box
 		Box whFieldBox = Box.createHorizontalBox();
 		whFieldBox.add(Box.createHorizontalGlue());
 		whFieldBox.add(widthField);
@@ -169,21 +179,19 @@ public class SizeForm extends JFrame{
 			}
 		});
 		
+		//Grouping Next button with glues into horizontal box
 		Box nextBox = Box.createHorizontalBox();
 		nextBox.add(Box.createHorizontalGlue());
 		nextBox.add(next);
 		nextBox.add(Box.createHorizontalGlue());
 		
+		//Grouping Next button box in vertical box with another glue
 		Box vertNext = Box.createVerticalBox();
 		//vertNext.add(Box.createVerticalGlue());
 		vertNext.add(nextBox);
 		vertNext.add(Box.createVerticalGlue());
 		
 		pane.add(vertNext);
-		
-		//Vertical space
-		//Component strut = Box.createVerticalStrut(10);
-		//pane.add(strut);
 		
 		this.pack();
 		

@@ -12,79 +12,97 @@ import javax.swing.JButton;
 
 public class JPexesoCard extends JButton{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
-	JButton butt;
+	JButton butt; //basic button
 	ImageIcon front; //only front picture is interesting, back will be the same for all fields
-	PexesoContainer cont;
+	PexesoContainer cont; //the game board, to which this card belongs
 	
 	int tupleNr; //number, which defines tuple, in which this card is
 	int id; //id in the tuple
-	boolean tupleFound;
+	boolean tupleFound; //signalizes that the card has been already matched with the second one
 	
 	public JPexesoCard(ImageIcon img, int nr, PexesoContainer c, int id){
-		System.out.println("Adding back icon to card nr "+((Integer) nr).toString());
-		//version with JButton directly
+		//creating new card - default is not turned
 		ImageIcon scaledBackPict = this.transformImageIcon(c, c.backPicture, true);
 		this.butt = new JButton(scaledBackPict);
 		butt.setBackground(Color.WHITE);
-		
-		//version with additional container for better viewing properties
-		
-		//ImageIcon newBackIcon = transformImageIcon2(c, butt, c.backPicture);
-		//butt.setIcon(newBackIcon);
-		//butt.setText(((Integer) nr).toString());
-		//this.front = transformImageIcon2(c, butt, img);
-		this.front = img;
-		c.frontPictureTuples[nr][id] = front;
-		this.tupleNr = nr;
+
+		this.front = img; //saving front image for future use
+		c.frontPictureTuples[nr][id] = front; //saving the image to the game board
+		this.tupleNr = nr; 
 		this.tupleFound = false;
 		this.cont = c;
 		this.id = id;
 	}
 	
+	/**
+	 * Returns tuple number/id of this card.
+	 * Can be used to decide whether cards match or not.
+	 * 
+	 * @return	Id of tuple in which the card belongs.
+	 */
 	public int getTupleNr(){
 		return tupleNr;
 	}
 	
+	/**
+	 * Sets the card found.
+	 */
 	public void setFound(){
 		tupleFound = true;
 	}
 	
+	/**
+	 * Turns the card to it's back side by changing the {@link ImageIcon} of the JButton.
+	 */
 	public void turnToBackSide(){
-		//System.out.println("Function turnToBackSide card "+((Integer) tupleNr).toString()+"-"+((Integer) id).toString());
 		butt.setIcon(cont.backPicture);
 		this.getButton().setIcon(this.transformImageIcon(cont, cont.backPicture, true));
 		
 	}
 	
+	/**
+	 * Turns the card to it's front side by changing the {@link ImageIcon} of the JButton.
+	 */
 	public void turnToFrontSide(){
-		//System.out.println("Function turnToFrontSide card "+((Integer) tupleNr).toString()+"-"+((Integer) id).toString());
 		butt.setIcon(front);
 		this.getButton().setIcon(this.transformImageIcon(cont, front, false));	
 	}
 	
+	/**
+	 * 
+	 * @return button	The button which is included in {@link JPexesoCard}.
+	 */
 	public JButton getButton(){
 		return butt;
 	}
 	
-	private ImageIcon transformImageIcon(PexesoContainer cont2, ImageIcon orig, boolean back){
+	
+	/**
+	 * Transforms the Image of the card to be the right size,
+	 * so it fits the card properly. The scaling is alwayse proportional. 
+	 * <p>
+	 * The transformation is different for front and back-side images.
+	 * The front side image is transformed such that the whole image is visible.
+	 * On the other hand, back-side image is transformed such that it fills the whole card 
+	 * (the background shouldn't be visible underneath). The result is that only a part of 
+	 * the original image is visible. 
+	 * 
+	 * 
+	 * @param cont	The game board on which the card lays.
+	 * @param orig	The original ImageIcon - included because the container might not have it initialized. (Enables to call it in a constructor of the container.)
+	 * @param back	Signalizes if the {@link ImageIcon} is or isn't the back side Image. Transformation behaves differently for them.
+	 * @return	The resized ImageIcon
+	 */
+	private ImageIcon transformImageIcon(PexesoContainer cont, ImageIcon orig, boolean back){
 		
-		//System.out.println("Transforming an image icon in transformImageIcon.");
 		// finding out the actual size of the grid cell
-		//System.out.println("Container width is " + ((Integer)cont2.getSize().width).toString() + " and height is "+((Integer)cont2.getSize().height).toString());
-		//System.out.println("Number of columns is "+ ((Integer)cont2.columns).toString() + " and number of rows is " + ((Integer)cont2.rows).toString());
-		int imgWidth = cont2.getSize().width / cont2.columns;
-		//System.out.println("Img width is "+ ((Integer)imgWidth).toString());
-		int imgHeight = cont2.getSize().height / cont2.rows;
-		//System.out.println("Img height is "+ ((Integer)imgHeight).toString());
+		int imgWidth = cont.getSize().width / cont.columns;
+		int imgHeight = cont.getSize().height / cont.rows;
 		
 		// get image from icon
 		Image originalIcon = orig.getImage(); 
-		//((ImageIcon) this.getButton().getIcon()).getImage();
 		
 		//scale the image with respect to the ratio
 		Image resizedIcon;
@@ -92,11 +110,9 @@ public class JPexesoCard extends JButton{
 			//front image - we want the whole image to be visible
 			//so scale it according to the smaller size
 			if (imgHeight > imgWidth) {
-				//System.out.println("Height is greater than width.");
 				resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
 			}
 			else {
-				//System.out.println("Width is greater than height.");
 				resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
 			}
 		}
@@ -104,60 +120,14 @@ public class JPexesoCard extends JButton{
 			//back image - we want the whole button to be under the image
 			//so we scale according to the greater size
 			if (imgWidth > imgHeight) {
-				//System.out.println("Height is greater than width.");
 				resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
 			}
 			else {
-				//System.out.println("Width is greater than height.");
 				resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
 			}
 		}
-		
-		//replace the image
-		return new ImageIcon( resizedIcon ); //substitute the old one by the scaled one
-		//this.getButton().setIcon(newIcon);
+		//return the resized image
+		return new ImageIcon( resizedIcon );
 	}
-	
-	/*public ImageIcon transformImageIcon2(PexesoContainer cont, ImageIcon orig){
-		
-		System.out.println("Transforming an image icon in transformImageIcon2.");
-		//counting the size of button
-		int imgWidth = cont.getSize().width / cont.columns;
-		System.out.println("Img width is "+ ((Integer)imgWidth).toString());
-		int imgHeight = cont.getSize().height / cont.rows;
-		System.out.println("Img height is "+ ((Integer)imgHeight).toString());	
-		
-		// get image from icon
-		Image originalIcon = orig.getImage(); 
-		
-		//scale the image with respect to the ratio
-		Image resizedIcon;
-		if (imgHeight > imgWidth) {
-			//System.out.println("Height is greater than width.");
-			resizedIcon = originalIcon.getScaledInstance(imgWidth, -1, java.awt.Image.SCALE_REPLICATE);
-		}
-		else {
-			//System.out.println("Width is greater than height.");
-			resizedIcon = originalIcon.getScaledInstance(-1, imgHeight, java.awt.Image.SCALE_REPLICATE);
-		}				
-		
-		return new ImageIcon( resizedIcon ); //substitute the old one by the scaled one
-		
-	}*/
-	
-	private void viewError(String errorMsg){
-		//TODO create pop-up window
-	}
-	
-	
-	
-	/*ImageIcon back = new ImageIcon("/home/anet/MFF/Java/Zapocet/zadni-strana-pexesa.png");
-	
-	if (picturePathOk(frontPicture)){
-		ImageIcon front = new ImageIcon(frontPicture);
-	}
-	else {
-		System.out.println("Wrong image file format.");
-	}*/
 
 }
