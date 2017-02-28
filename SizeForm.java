@@ -100,20 +100,20 @@ public class SizeForm extends JFrame{
 		//Glue
 		pane.add(Box.createRigidArea(getPreferredSize()));
 		
-		//Width-text
-		JLabel widthText = new JLabel("Width");
-		widthText.setAlignmentX(Component.LEFT_ALIGNMENT);
-		
 		//Height-text
 		JLabel heightText = new JLabel("Height");
+		heightText.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		//Width-text
+		JLabel widthText = new JLabel("Width");
 		heightText.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
 		//Grouping together
 		Box whLableBox = Box.createHorizontalBox();
 		whLableBox.add(Box.createHorizontalGlue());
-		whLableBox.add(widthText);
-		whLableBox.add(Box.createHorizontalGlue());
 		whLableBox.add(heightText);
+		whLableBox.add(Box.createHorizontalGlue());
+		whLableBox.add(widthText);
 		whLableBox.add(Box.createHorizontalGlue());
 		pane.add(whLableBox);
 		

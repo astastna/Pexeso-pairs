@@ -250,7 +250,7 @@ public class MainWindow {
 	 */
 	private static void showLoadError(JFrame f){
 		JOptionPane.showMessageDialog(f,
-			    "The game has not been uploaded because there is something wrong with the file." + "Use file created when saving the game or create it in a correct format.",
+			    "The game has not been uploaded because there is something wrong with the file. \n" + "Use file created when saving the game or create it in a correct format.",
 			    "Unsaved game warning",
 			    JOptionPane.WARNING_MESSAGE);
 	}
@@ -321,7 +321,6 @@ public class MainWindow {
 		int height = 0;
 		String line;
 		String[] split;
-		ImageIcon backsideImage = null;
 		int lineNum = 1;
 		ImageIcon[][] paths = new ImageIcon[width*height/2][2];
 		boolean everythingOk = true;
@@ -340,6 +339,7 @@ public class MainWindow {
 					split = line.split(";");
 					if (split.length != 2){
 						everythingOk = false;
+						System.out.println("Split has wrong lenght.");
 						return null;
 					}
 					width = Integer.parseInt(split[0]);
@@ -351,68 +351,96 @@ public class MainWindow {
 					break;
 				
 				
-				case 2:
+				/*
+				 * certain further improvements would be needed to make this work
+				 * currently chosen back-side image will be always used for now
+				 * case 2:
 					//parsing and checking the path to back-side image
-					
-					if (imageOk(line)) backsideImage = new ImageIcon (MainWindow.class.getClassLoader().getResource(line));
+					//the paths are absolute, so there is no need to use getResource function
+					if (imageOk(line)){
+						backsideImage = new ImageIcon (line);
+						System.out.println("Chosen back-side image "+ line + " is used.");
+					}
 					else {
 						//when the back-side image saving or loading didn't succeed, use the default one
 						if (line.equals("")) backsideImage = new ImageIcon (backSideImage);
 						else {
 							everythingOk = false;
+							System.out.println("The back side image in loaded game is wrong (and not empty).");
 							showImageError(frame);
 						}
 					}
 					
 					lineNum++;
-					break;
+					break;*/
 				
 				default:
 					//parsing and checking the paths to the image pairs
 					split = line.split(";");
 					if (split.length != 2){
+						System.out.println("Split has wrong lenght.");
 						return null;
 					}
 					if (imageOk(split[0])){
-						URL image = MainWindow.class.getResource(split[0]);
-						if (image != null) paths[lineNum-3][0] = new ImageIcon (image);
-						else showImageError(frame);
+						String image = split[0];
+						if (image != null) {
+							ImageIcon cardIcon = new ImageIcon (image);
+							if (cardIcon.getImage() != null) paths[lineNum-2][0] = cardIcon;
+							else System.out.println("Icon doesn't contain Image!");
+						}
+						else {
+							showImageError(frame);
+							System.out.println("Image:"+ split[0] +" path is not null but getResource returns null.");
+						}
 					}
 					else {
 						everythingOk = false;
+						System.out.println("Image is not Ok according to the function.");
 						showImageError(frame);
 					}
 					
-					if (imageOk(split[1])) {
-						URL image = MainWindow.class.getResource(split[1]);
-						if (image != null) paths[lineNum-3][1] = new ImageIcon (image);
-						else showImageError(frame);
+					if (imageOk(split[1])){
+						String image = split[1];
+						if (image != null) {
+							ImageIcon cardIcon = new ImageIcon (image);
+							if (cardIcon.getImage() != null) paths[lineNum-2][1] = cardIcon;
+							else System.out.println("Icon doesn't contain Image!");
+						}
+						else {
+							showImageError(frame);
+							System.out.println("Image:"+ split[1] +" path is not null but getResource returns null.");
+						}
 					}
 					else {
 						everythingOk = false;
+						System.out.println("Image is not Ok according to the function.");
 						showImageError(frame);
 					}
 					
 					lineNum++;
 					split[0] = "";
 					split[1] = "";
+					
+					break;
 				}
 			}
 			
 			//creating the PexesoContainer from the parsed parameters
 			if (everythingOk) {
-				PexesoContainer pc = createNewPexeso(frame.getContentPane(), paths, width, height, backsideImage);
+				PexesoContainer pc = createNewPexeso(frame.getContentPane(), paths, width, height, new ImageIcon (backSideImage));
 				pc.createNewGame();
 				return pc;
 			}
 			else {
+				System.out.println("Something isn't ok.");
 				return null;
 			}
 		}
 		catch(IOException io){
 			System.out.println("An IO Exception occured.");
 		}
-		return null; 
+		System.out.println("Got to the end of function surprisingly.");
+		return null;
 	}
 	
 	

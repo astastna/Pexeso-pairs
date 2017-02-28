@@ -150,13 +150,16 @@ public class ChoosePictureForm extends JFrame{
 		String dimen = ((Integer) gameWidth).toString() + ";" + ((Integer) gameHeight).toString();
 		list.add(dimen);
 		
+		/*
+		 * Remains unimplemented for now due to some errors and minor importance
+		 * back side image is not saved when saving the game
 		//add path to back side image to the file
 		String descr = backSideImage.getDescription();
 		if (descr != null) list.add(descr);
 		else {
 			System.out.println("Something went wrong with the description of the back side ImageIcon.");
 			list.add("");
-		}
+		}*/
 		
 		//create string with matching pathnames
 		if (pathsExist()){
