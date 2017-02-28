@@ -1,14 +1,17 @@
 package pexeso;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -16,25 +19,47 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
-public class MainWindow {	
+public class MainWindow {
 	/**
 	 * 
 	 */
 	
 	private final static int defaultGameWidth = 4;
 	private final static int defaultGameHeight = 4;
-	private static String backSideImage = "src/resources/back-side.png";
+	//private static String backSideImage = "res/back-side.png";
+	private static URL backSideImage = MainWindow.class.getClassLoader().getResource("res/back-side.png");
+	private static ImageIcon backSideIcon = null;
+	//private static BufferedImage backImg;
+	private static JFrame thisWindow;
 	
 	
 	private static void createAndShowGUI() {
 		
 		// basic window setup
 		JFrame.setDefaultLookAndFeelDecorated(true);
-		JFrame frame = new JFrame("Pexeso");
+		final JFrame frame = new JFrame("Pexeso");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.addComponentListener(new ResizeListener());
+		frame.addComponentListener(new ResizeListener(){
+			public void componentResized(ComponentEvent e) {
+				if (frame != null){
+					if (frame.getContentPane().getComponents().length != 0)((PexesoContainer) frame.getContentPane()).updateAllCards();
+				}
+		    }
+		});
+		
+		thisWindow = frame;
+		
+		Image backImage = null;
+		try {
+			backImage = ImageIO.read(backSideImage);
+		} catch (IOException e1) {
+			showIOError(thisWindow);
+		}
+		backSideIcon = new ImageIcon( backImage );
+		
 		
 		//create the menu's
 		JMenuBar menuBar = createMenus(frame);
@@ -43,8 +68,6 @@ public class MainWindow {
 		frame.pack();
 		frame.setVisible(true);
 	}
-	
-	
 	
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable()	{
@@ -66,7 +89,7 @@ public class MainWindow {
 		JMenuBar menuBar;
 		JMenu menu;
 		JMenuItem newGameItem, existingGameItem, backSideSetup, quitItem;
-
+		
 		menuBar = new JMenuBar();
 
 		//The main menu
@@ -88,7 +111,8 @@ public class MainWindow {
 		newGameItem.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
 				//Run the input forms for creating of a new game
-				SizeForm newGameForm = new SizeForm(defaultGameWidth, defaultGameHeight, frame, backSideImage);
+				
+				SizeForm newGameForm = new SizeForm(defaultGameWidth, defaultGameHeight, frame, backSideIcon);
 				newGameForm.setVisible(true);
 			}
 		});
@@ -156,7 +180,8 @@ public class MainWindow {
 		    		
 		    		//Check, that the image is correct
 		    		if (imageOk(path)) {
-		    			backSideImage = path;
+		    			backSideImage = MainWindow.class.getResource(path);
+		    			if (backSideImage == null) showImageError(frame);
 		    		}
 		    		else {
 		    			System.out.println("Back-side image is wrong.");
@@ -242,6 +267,17 @@ public class MainWindow {
 			    JOptionPane.ERROR_MESSAGE);
 	}
 	
+	/** Shows an error dialog with message about an IO error regarding uploaded file.
+	 * 
+	 * @param f	The main window of application. 
+	 */
+	private static void showIOError(JFrame f){
+		JOptionPane.showMessageDialog(f,
+			    "An IO exception occured. \n Try later of with another file.",
+			    "IO Error",
+			    JOptionPane.ERROR_MESSAGE);
+	}
+	
 	/**
 	 * Creates new {@link PexesoContainer} with playable game according to given parameters of the game.
 	 * 
@@ -253,7 +289,7 @@ public class MainWindow {
 	 * @param backSideImage	The image that will be shown on the back side of the cards.
 	 * @return pexesoPane	{@link PexesoContainer} with new game.
 	 */
-	private static PexesoContainer createNewPexeso(Container pane, String[][] paths, int width, int height, String backSideImage){
+	private static PexesoContainer createNewPexeso(Container pane, ImageIcon[][] paths, int width, int height, ImageIcon backSideImage){
 		
 		//create new PexesoContainer
 		PexesoContainer pexesoPane = new PexesoContainer(pane, height, width, backSideImage, paths);
@@ -285,9 +321,9 @@ public class MainWindow {
 		int height = 0;
 		String line;
 		String[] split;
-		String backsideImage = null;
+		ImageIcon backsideImage = null;
 		int lineNum = 1;
-		String[][] paths = new String[width*height/2][2];
+		ImageIcon[][] paths = new ImageIcon[width*height/2][2];
 		boolean everythingOk = true;
 		
 		try{
@@ -308,7 +344,7 @@ public class MainWindow {
 					}
 					width = Integer.parseInt(split[0]);
 					height = Integer.parseInt(split[1]);
-					paths = new String[(width*height+1)/2][2];
+					paths = new ImageIcon[(width*height+1)/2][2];
 					split[0] = "";
 					split[1] = "";
 					lineNum++;
@@ -317,10 +353,15 @@ public class MainWindow {
 				
 				case 2:
 					//parsing and checking the path to back-side image
-					if (imageOk(line)) backsideImage = line;
+					
+					if (imageOk(line)) backsideImage = new ImageIcon (MainWindow.class.getClassLoader().getResource(line));
 					else {
-						everythingOk = false;
-						showImageError(frame);
+						//when the back-side image saving or loading didn't succeed, use the default one
+						if (line.equals("")) backsideImage = new ImageIcon (backSideImage);
+						else {
+							everythingOk = false;
+							showImageError(frame);
+						}
 					}
 					
 					lineNum++;
@@ -332,13 +373,21 @@ public class MainWindow {
 					if (split.length != 2){
 						return null;
 					}
-					if (imageOk(split[0])) paths[lineNum-3][0] = split[0];
+					if (imageOk(split[0])){
+						URL image = MainWindow.class.getResource(split[0]);
+						if (image != null) paths[lineNum-3][0] = new ImageIcon (image);
+						else showImageError(frame);
+					}
 					else {
 						everythingOk = false;
 						showImageError(frame);
 					}
 					
-					if (imageOk(split[1])) paths[lineNum-3][1] = split[1];
+					if (imageOk(split[1])) {
+						URL image = MainWindow.class.getResource(split[1]);
+						if (image != null) paths[lineNum-3][1] = new ImageIcon (image);
+						else showImageError(frame);
+					}
 					else {
 						everythingOk = false;
 						showImageError(frame);

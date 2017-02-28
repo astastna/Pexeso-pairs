@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -12,7 +13,7 @@ import javax.swing.ImageIcon;
 
 
 public class PexesoContainer extends Container {
-	public static final String pathToWinImage = "src/resources/win.png";
+	public static final String pathToWinImage = "res/win.png";
 	
 	int fieldsCnt; //number of fields
 	int notFoundPairsCnt; //counter for pairs, which weren't matched yet
@@ -23,30 +24,31 @@ public class PexesoContainer extends Container {
 	ImageIcon backPicture; //back side of the cards
 	ImageIcon winningIcon; //winning icon
 	ImageIcon[][] frontPictureTuples;
+	JPexesoCard[] cards;
 	
 	private static final long serialVersionUID = 1L;
 	
-	public PexesoContainer(Container container, int rows, int columns, String pathToPicture, String[][] pathsToFrontPictures){
+	public PexesoContainer(Container container, int rows, int columns, ImageIcon backSidePicture, ImageIcon[][] pathsToFrontPictures){
 		this.fieldsCnt = rows*columns;
 		this.rows = rows;
 		this.columns = columns;
 		this.notFoundPairsCnt = fieldsCnt/2;
 		this.stepNr = 0;
 		this.turned = new JPexesoCard[2];
-		Image big = (new ImageIcon(pathToWinImage)).getImage();
+		URL winImageURL = PexesoContainer.class.getClassLoader().getResource(pathToWinImage);
+		
+		Image big = (new ImageIcon(winImageURL).getImage());
 		Image smaller = big.getScaledInstance(100, 100, 100);
 		this.winningIcon = new ImageIcon(smaller);
 		 
-		if (picturePathOk(pathToPicture)){
-			backPicture = new ImageIcon(pathToPicture);
-		}
+		backPicture = backSidePicture;
 		
 		//processing the paths to pictures
 		frontPictureTuples = new ImageIcon[rows*columns/2][2];
 		for (int i=0; i < rows*columns/2; i++){
 			for (int j=0; j < 2; j++){
 				if (picturePathOk(pathsToFrontPictures[i][j])){
-					frontPictureTuples[i][j] = new ImageIcon(pathsToFrontPictures[i][j]);
+					frontPictureTuples[i][j] = pathsToFrontPictures[i][j];
 				}
 			}
 		}
@@ -66,7 +68,7 @@ public class PexesoContainer extends Container {
 		this.setLayout(layout);
 		
 		//initializing cards and placing them on the game board
-		JPexesoCard card[] = new JPexesoCard[fieldsCnt];
+		cards = new JPexesoCard[fieldsCnt];
 		String[] description = new String[fieldsCnt];
 		
 		//prepare shuffled field
@@ -81,18 +83,28 @@ public class PexesoContainer extends Container {
 			int randK = shuffled.get(k);
 			
 			//back-picture handling
-			card[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
+			cards[k] = new JPexesoCard(frontPictureTuples[randK/2][randK%2], randK/2 , this, randK%2);
 			//version without shuffling for testing
-			//card[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
+			//cards[k] = new JPexesoCard(frontPictureTuples[k/2][k%2], k/2 , this, k%2);
 			
 			//adds the logic - what happens after clicking
-			MouseListener onClick = new clickProcessor(this, card[k]);
-			card[k].getButton().addMouseListener(onClick);
+			MouseListener onClick = new clickProcessor(this, cards[k]);
+			cards[k].getButton().addMouseListener(onClick);
 			
 			description[k] = "("+((Integer)columns).toString()+";"+((Integer)rows).toString()+")";
-			layout.addLayoutComponent(description[k], card[k]);
+			layout.addLayoutComponent(description[k], cards[k]);
 			
-			this.add(card[k].getButton());
+			this.add(cards[k].getButton());
+		}
+	}
+	
+	public void updateAllCards(){
+		for (int k = 0; k < fieldsCnt; k++){
+			cards[k].turnToBackSide();
+		}
+		
+		for (int k = 0; k < 2; k++){
+			if (turned[k] != null) turned[k].turnToFrontSide();
 		}
 	}
 	
@@ -166,15 +178,16 @@ public class PexesoContainer extends Container {
 	 * which are the supported image formats. It DOESN'T CHECK that the file contains
 	 * data in the specified format.
 	 * 
-	 * @param path	String with path to a file.
+	 * @param icon	String with path to a file.
 	 * @return	True if the path ends with .jpg, .gif or .png.
 	 */
-	private boolean picturePathOk(String path){
-		if (path == null) return false;
+	private boolean picturePathOk(ImageIcon icon){
+		if (icon == null) return false;
 		
-		String[] fileFormat = path.split("\\.");
-		//System.out.println(path);
-		//System.out.print(fileFormat[0]+" a "+fileFormat[1]);
+		String fileString = icon.getDescription();
+		if (fileString.equals(null)) return false;
+		
+		String[] fileFormat = fileString.split("\\.");
 		int last = fileFormat.length - 1;
 		
 		switch(fileFormat[last]){

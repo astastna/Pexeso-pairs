@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,10 +28,10 @@ public class SizeForm extends JFrame{
 	int defaultHeight;
 	JFrame originalFrame; //the main window of the application
 	SizeForm currentSizeForm; //this window
-	String backSideImage; //current back side image (for this game)
+	ImageIcon backSideImage; //current back side image (for this game)
 	
 	
-	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig, String backSideImage){ 
+	public SizeForm(int defaultWidth, int defaultHeight, JFrame orig, ImageIcon backSideImage){ 
 		this.defaultWidth = defaultWidth;
 		this.defaultHeight = defaultHeight;
 		this.currentSizeForm = this;
@@ -84,17 +85,14 @@ public class SizeForm extends JFrame{
 		BoxLayout box = new BoxLayout(pane, BoxLayout.Y_AXIS);
 		pane.setLayout(box);
 		
-		
 		//Title text
 		JLabel size = new JLabel("Size");
-		//size.setFont(new Font("Serif", Font.BOLD, 14));
 		size.setAlignmentX(Component.CENTER_ALIGNMENT);
 		size.setAlignmentY(Component.TOP_ALIGNMENT);
 		pane.add(size);
 		
 		//Description text
 		JLabel sizeDescr = new JLabel("Choose the size of your game board. Only numbers between 1 and "+ ((Integer) maxSize).toString() +" are allowed.");
-		//sizeDescr.setFont(new Font("Serif", Font.PLAIN, 10));
 		sizeDescr.setAlignmentX(Component.CENTER_ALIGNMENT);
 		pane.add(sizeDescr);
 		
@@ -104,12 +102,10 @@ public class SizeForm extends JFrame{
 		
 		//Width-text
 		JLabel widthText = new JLabel("Width");
-		//widthText.setFont(new Font("Serif", Font.PLAIN, 10));
 		widthText.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
 		//Height-text
 		JLabel heightText = new JLabel("Height");
-		//heightText.setFont(new Font("Serif", Font.PLAIN, 10));
 		heightText.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
 		//Grouping together

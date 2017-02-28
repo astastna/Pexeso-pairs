@@ -32,12 +32,23 @@ public class clickProcessor implements MouseListener{
 		//dealing with duplicit clicks
 		//already matched card (the first one) and current card are the same 
 		if( turned[0] != null && turned[0].tupleNr == currentCard.tupleNr && turned[0].id == currentCard.id){
-			ignore = true; // click on already turned card
+			newTurned = turned; // click on already turned card - no change
+			ignore = true;
 		}
+		
+		if( turned[0] != null && turned[0].tupleNr == currentCard.tupleNr && turned[0].id != currentCard.id){
+			ignore = false; // click on the other card from tuple
+		}
+		
 		
 		//already matched card (the second one) and current card are the same - second card
 		if( turned[1] != null && turned[1].tupleNr == currentCard.tupleNr && turned[1].id == currentCard.id){
-			ignore = true;
+			newTurned = turned; // click on already turned card - no change
+			ignore = true; // click on the other card from tuple
+		}
+		
+		if( turned[1] != null && turned[1].tupleNr == currentCard.tupleNr && turned[1].id != currentCard.id){
+			ignore = false; // click on the other card from tuple (after clicking on the same card)
 		}
 		
 		//no card is turned - we are turning up the current card as the first one turned

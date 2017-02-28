@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -22,6 +21,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -38,16 +38,16 @@ public class ChoosePictureForm extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	String backSideImage; //current back side image (for this game)
+	ImageIcon backSideImage; //current back side image (for this game)
 	int gameWidth;
 	int gameHeight;
 	JFrame original; //the main window of the application
 	ChoosePictureForm currentWindow; //this window
 	Container pane;
 	PexesoContainer chosenPexesoPane; //game board
-	String[][] paths; //paths to the front images
+	ImageIcon [][] paths; //paths to the front images
 	
-	public ChoosePictureForm(int width, int height, JFrame orig, String backSideImage){
+	public ChoosePictureForm(int width, int height, JFrame orig, ImageIcon backSideImage){
 		this.gameWidth = width;
 		this.gameHeight = height;
 		this.pane = this.getContentPane();
@@ -55,10 +55,10 @@ public class ChoosePictureForm extends JFrame{
 		this.currentWindow = this;
 		this.backSideImage = backSideImage;
 		
-		this.paths = new String[gameWidth*gameHeight/2][2];
+		this.paths = new ImageIcon[gameWidth*gameHeight/2][2];
 		for (int i=0; i < gameWidth*gameHeight/2; i++){
-			paths[i][0] = "";
-			paths[i][1] = "";
+			paths[i][0] = null;
+			paths[i][1] = null;
 		}
 		
 		initializeChoosePictureForm();
@@ -151,10 +151,15 @@ public class ChoosePictureForm extends JFrame{
 		list.add(dimen);
 		
 		//add path to back side image to the file
-		list.add(backSideImage);
+		String descr = backSideImage.getDescription();
+		if (descr != null) list.add(descr);
+		else {
+			System.out.println("Something went wrong with the description of the back side ImageIcon.");
+			list.add("");
+		}
 		
 		//create string with matching pathnames
-		if (pathNamesExist()){
+		if (pathsExist()){
 			for (int k = 0; k < gameWidth*gameHeight/2; k++){
 				list.add(paths[k][0] + ";" + paths[k][1]);
 			}
@@ -175,16 +180,11 @@ public class ChoosePictureForm extends JFrame{
 	private void defaultImages(){
 	int pairs = gameWidth*gameHeight/2;
 		
-		//get path in order to make pictures working
-		Path currentRelativePath = Paths.get("");
-		String s = currentRelativePath.toAbsolutePath().toString();
-		
 		//save the paths to files
 		for (int i = 0; i < pairs; i++){
-			paths[i][0] = s + "/src/resources/img" + ((Integer) i).toString() + ".jpg";
-			paths[i][1] = s + "/src/resources/img" + ((Integer) i).toString() + ".jpg";
+			paths[i][0] = new ImageIcon (ChoosePictureForm.class.getClassLoader().getResource("res/img" + ((Integer) i).toString() + ".jpg"));
+			paths[i][1] = new ImageIcon (ChoosePictureForm.class.getClassLoader().getResource("res/img" + ((Integer) i).toString() + ".jpg"));
 		}
-		
 	}
 	
 	/**
@@ -195,7 +195,7 @@ public class ChoosePictureForm extends JFrame{
 	 * @param images	Paths (Strings) to the front images.
 	 * @return	pexesoPane	Returns new {@link PexesoContainer}, which is playable.
 	 */
-	private PexesoContainer prepareNewGame(String[][] images){
+	private PexesoContainer prepareNewGame(ImageIcon[][] images){
 		PexesoContainer pexesoPane = new PexesoContainer(pane, gameWidth, gameHeight, backSideImage, images);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
@@ -227,10 +227,10 @@ public class ChoosePictureForm extends JFrame{
 	 * 
 	 * @return	all file paths are/aren't filled in
 	 */
-	private boolean pathNamesExist(){
+	private boolean pathsExist(){
 		
 		for (int k = 0; k < gameWidth*gameHeight/2; k++){
-			if (paths[k][0] == "" || paths[k][1] == ""){
+			if (paths[k][0] == null || paths[k][1] == null){
 				return false;
 			}
 		}
@@ -283,7 +283,7 @@ public class ChoosePictureForm extends JFrame{
 
 			    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 			    		File file = fc[j].getSelectedFile();
-			   			paths[j/2][j%2] = file.getAbsolutePath();
+			   			paths[j/2][j%2] = new ImageIcon(file.getPath());
 			   		}
 				}
 			
@@ -336,8 +336,8 @@ public class ChoosePictureForm extends JFrame{
 			    		System.out.println("SamePairs: Adding file "+ file.getAbsolutePath() +" to paths["+((Integer)(j)).toString() +"][0] "+ 
 			    				"and paths["+((Integer)(j/2)).toString() +"][1].");
 			    		//adding the image twice for both cards of the pair
-			   			paths[j][0] = file.getAbsolutePath();
-			   			paths[j][1] = file.getAbsolutePath();
+			   			paths[j][0] = new ImageIcon (file.getAbsolutePath());
+			   			paths[j][1] = new ImageIcon (file.getAbsolutePath());
 			   		}
 				}
 			
@@ -449,7 +449,7 @@ public class ChoosePictureForm extends JFrame{
 				
 		    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    		file = fc.getSelectedFile();
-		    		if (pathNamesExist()){
+		    		if (pathsExist()){
 						flushNewGameDataIntoFile(file);
 					}
 					else{
@@ -472,7 +472,6 @@ public class ChoosePictureForm extends JFrame{
 			public void actionPerformed (ActionEvent e){
 				
 				String actionCommand = getSelectedButton(buttGroup);
-				System.out.println("Action command: " + actionCommand);
 				
 				switch (actionCommand){
 				
@@ -497,7 +496,7 @@ public class ChoosePictureForm extends JFrame{
 				case "customPairs":
 					//choose-file fields already created
 					//and take the paths from them and use them to create new game
-					if (pathNamesExist()){
+					if (pathsExist()){
 						PexesoContainer customPairs = prepareNewGame(paths);
 						chosenPexesoPane = customPairs;
 						if (customPairs == null) showInvalidImageError();
@@ -513,7 +512,7 @@ public class ChoosePictureForm extends JFrame{
 				case "customDiff":
 					//choose-file fields already created
 					//and take the paths from them and use them to create new game
-					if (pathNamesExist()){
+					if (pathsExist()){
 						PexesoContainer customDiff = prepareNewGame(paths);
 						chosenPexesoPane = customDiff;
 						if (customDiff == null) showInvalidImageError();
@@ -530,14 +529,15 @@ public class ChoosePictureForm extends JFrame{
 					System.out.println("It doesn't work this way.");
 				}
 				
+				//close window
+				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
+				
 				//update the main frame
 	    		JMenuBar menuBar = MainWindow.createMenus(original);
 	    		original.setJMenuBar(menuBar);
 	    		original.validate();
 	    		original.pack();
 				
-				//close window
-				currentWindow.dispatchEvent(new WindowEvent(currentWindow, WindowEvent.WINDOW_CLOSING));
 			}
 		});
 		

@@ -1,11 +1,7 @@
 package pexeso;
 
-//import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Image;
-//import java.awt.Rectangle;
-
-//import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
@@ -23,9 +19,11 @@ public class JPexesoCard extends JButton{
 	boolean tupleFound; //signalizes that the card has been already matched with the second one
 	
 	public JPexesoCard(ImageIcon img, int nr, PexesoContainer c, int id){
+		this.cont = c;
+		
 		//creating new card - default is not turned
-		ImageIcon scaledBackPict = this.transformImageIcon(c, c.backPicture, true);
-		this.butt = new JButton(scaledBackPict);
+		ImageIcon scaled = transformImageIcon(cont, cont.backPicture, true);
+		this.butt = new JButton(scaled);
 		butt.setBackground(Color.WHITE);
 
 		this.front = img; //saving front image for future use
@@ -57,16 +55,13 @@ public class JPexesoCard extends JButton{
 	 * Turns the card to it's back side by changing the {@link ImageIcon} of the JButton.
 	 */
 	public void turnToBackSide(){
-		butt.setIcon(cont.backPicture);
 		this.getButton().setIcon(this.transformImageIcon(cont, cont.backPicture, true));
-		
 	}
 	
 	/**
 	 * Turns the card to it's front side by changing the {@link ImageIcon} of the JButton.
 	 */
 	public void turnToFrontSide(){
-		butt.setIcon(front);
 		this.getButton().setIcon(this.transformImageIcon(cont, front, false));	
 	}
 	
@@ -81,7 +76,7 @@ public class JPexesoCard extends JButton{
 	
 	/**
 	 * Transforms the Image of the card to be the right size,
-	 * so it fits the card properly. The scaling is alwayse proportional. 
+	 * so it fits the card properly. The scaling is always proportional. 
 	 * <p>
 	 * The transformation is different for front and back-side images.
 	 * The front side image is transformed such that the whole image is visible.
@@ -102,7 +97,7 @@ public class JPexesoCard extends JButton{
 		int imgHeight = cont.getSize().height / cont.rows;
 		
 		// get image from icon
-		Image originalIcon = orig.getImage(); 
+		Image originalIcon = orig.getImage();
 		
 		//scale the image with respect to the ratio
 		Image resizedIcon;
