@@ -28,7 +28,7 @@ public class PexesoContainer extends Container {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public PexesoContainer(Container container, int rows, int columns, ImageIcon backSidePicture, ImageIcon[][] pathsToFrontPictures){
+	public PexesoContainer(Container container, int rows, int columns, ImageIcon backSidePicture, ImageIcon[][] iconsWithFrontPictures){
 		this.fieldsCnt = rows*columns;
 		this.rows = rows;
 		this.columns = columns;
@@ -47,9 +47,10 @@ public class PexesoContainer extends Container {
 		frontPictureTuples = new ImageIcon[rows*columns/2][2];
 		for (int i=0; i < rows*columns/2; i++){
 			for (int j=0; j < 2; j++){
-				if (picturePathOk(pathsToFrontPictures[i][j])){
-					frontPictureTuples[i][j] = pathsToFrontPictures[i][j];
+				if (picturePathOk(iconsWithFrontPictures[i][j])){
+					frontPictureTuples[i][j] = iconsWithFrontPictures[i][j];
 				}
+				else System.out.println("Picture path not ok: "+ iconsWithFrontPictures[i][j]);
 			}
 		}
 	}
@@ -57,8 +58,6 @@ public class PexesoContainer extends Container {
 	/**
 	 * Prepares the {@link PexesoContainer} for starting of new game. 
 	 * Places shuffled cards on the game board and adds the click processing logic to them. 
-	 * 
-	 * @param pathToBackPicture - path to picture, which will be shown as a back side of the cards
 	 * 
 	 */
 	public void createNewGame(){
@@ -178,7 +177,7 @@ public class PexesoContainer extends Container {
 	 * which are the supported image formats. It DOESN'T CHECK that the file contains
 	 * data in the specified format.
 	 * 
-	 * @param icon	String with path to a file.
+	 * @param icon	ImageIcon with image.
 	 * @return	True if the path ends with .jpg, .gif or .png.
 	 */
 	private boolean picturePathOk(ImageIcon icon){

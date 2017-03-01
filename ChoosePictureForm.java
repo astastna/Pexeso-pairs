@@ -45,7 +45,8 @@ public class ChoosePictureForm extends JFrame{
 	ChoosePictureForm currentWindow; //this window
 	Container pane;
 	PexesoContainer chosenPexesoPane; //game board
-	ImageIcon [][] paths; //paths to the front images
+	ImageIcon [][] icons; //icons of the front images
+	String [][] paths; // paths to the front images
 	
 	public ChoosePictureForm(int width, int height, JFrame orig, ImageIcon backSideImage){
 		this.gameWidth = width;
@@ -55,10 +56,16 @@ public class ChoosePictureForm extends JFrame{
 		this.currentWindow = this;
 		this.backSideImage = backSideImage;
 		
-		this.paths = new ImageIcon[gameWidth*gameHeight/2][2];
+		this.icons = new ImageIcon[gameWidth*gameHeight/2][2];
 		for (int i=0; i < gameWidth*gameHeight/2; i++){
-			paths[i][0] = null;
-			paths[i][1] = null;
+			icons[i][0] = null;
+			icons[i][1] = null;
+		}
+		
+		this.paths = new String[gameWidth*gameHeight][2];
+		for (int i = 0; i < gameWidth*gameHeight/2; i++){
+			paths[i][0] = "";
+			paths[i][1] = "";
 		}
 		
 		initializeChoosePictureForm();
@@ -161,14 +168,23 @@ public class ChoosePictureForm extends JFrame{
 		}*/
 		
 		//create string with matching pathnames
-		if (pathsExist()){
+		if (iconsExist()){
 			for (int k = 0; k < gameWidth*gameHeight/2; k++){
 				String[] correctPath = new String[2];
 				for (int j = 0; j < 2; j++){
 					//getting rid of file: and jar: on the beginning of the path
 					//makes no change to correct path
-					String[] split = (paths[k][j].toString()).split(":");
-					correctPath[j] = split[split.length-1];
+					String[] split = (icons[k][j].toString()).split(":");
+					
+					//dealing with absolute path on Windows having C: etc.
+					if (split.length > 1 && split[split.length-2].matches("^[a-zA-Z]") ){
+						//string is part of absolute path on Windows
+						correctPath[j] = dealWithJar(split[split.length-2] + split[split.length-1]);
+					}
+					else {
+						//path on Linux
+						correctPath[j] = dealWithJar(split[split.length-1]);
+					}
 				}
 				list.add(correctPath[0] + ";" + correctPath[1]);
 			}
@@ -178,6 +194,19 @@ public class ChoosePictureForm extends JFrame{
 		}
 		
 		return list;
+	}
+	/**
+	 * This function removes the part of path containing file.jar!/ 
+	 * and returns a relative part of the given path. 
+	 * 
+	 * @param pathWithJar	path which might be containing sequence ".jar!/"
+	 * @return	relative path without the path to jar file and !
+	 */
+	private String dealWithJar(String pathWithJar){
+		String[] split = pathWithJar.split("jar!/");
+		String returnString = split[split.length-1];
+		returnString.replaceFirst(".", ""); //getting rid of \ or /
+		return returnString;
 	}
 	
 	/**
@@ -191,8 +220,9 @@ public class ChoosePictureForm extends JFrame{
 		
 		//save the paths to files
 		for (int i = 0; i < pairs; i++){
-			paths[i][0] = new ImageIcon (ChoosePictureForm.class.getClassLoader().getResource("res/img" + ((Integer) i).toString() + ".jpg"));
-			paths[i][1] = new ImageIcon (ChoosePictureForm.class.getClassLoader().getResource("res/img" + ((Integer) i).toString() + ".jpg"));
+			String pathToImage = "res/img" + ((Integer) i).toString() + ".jpg";
+			icons[i][0] = new ImageIcon (ChoosePictureForm.class.getClassLoader().getResource(pathToImage));
+			icons[i][1] = new ImageIcon (ChoosePictureForm.class.getClassLoader().getResource(pathToImage));
 		}
 	}
 	
@@ -232,14 +262,14 @@ public class ChoosePictureForm extends JFrame{
     }
 	
 	/**
-	 * Function to check that all paths to files have been filled in.
+	 * Function to check that all ImageIcons have been filled in.
 	 * 
-	 * @return	all file paths are/aren't filled in
+	 * @return	all ImageIcons are/aren't filled in
 	 */
-	private boolean pathsExist(){
+	private boolean iconsExist(){
 		
 		for (int k = 0; k < gameWidth*gameHeight/2; k++){
-			if (paths[k][0] == null || paths[k][1] == null){
+			if (icons[k][0] == null || icons[k][1] == null){
 				return false;
 			}
 		}
@@ -292,7 +322,7 @@ public class ChoosePictureForm extends JFrame{
 
 			    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 			    		File file = fc[j].getSelectedFile();
-			   			paths[j/2][j%2] = new ImageIcon(file.getPath());
+			   			icons[j/2][j%2] = new ImageIcon(file.getPath());
 			   		}
 				}
 			
@@ -345,8 +375,8 @@ public class ChoosePictureForm extends JFrame{
 			    		System.out.println("SamePairs: Adding file "+ file.getAbsolutePath() +" to paths["+((Integer)(j)).toString() +"][0] "+ 
 			    				"and paths["+((Integer)(j/2)).toString() +"][1].");
 			    		//adding the image twice for both cards of the pair
-			   			paths[j][0] = new ImageIcon (file.getAbsolutePath());
-			   			paths[j][1] = new ImageIcon (file.getAbsolutePath());
+			   			icons[j][0] = new ImageIcon (file.getAbsolutePath());
+			   			icons[j][1] = new ImageIcon (file.getAbsolutePath());
 			   		}
 				}
 			
@@ -382,7 +412,7 @@ public class ChoosePictureForm extends JFrame{
 		//this has to be done as the button seems to be already selected 
 		//when the player wants to save the game, this would be not called, as the Finish button is not clicked on
 		defaultImages();
-		PexesoContainer newGame = prepareNewGame(paths);
+		PexesoContainer newGame = prepareNewGame(icons);
 		if (newGame == null){
 			System.out.println("prepareNewGame returned null.");
 			JOptionPane.showMessageDialog(currentWindow,
@@ -473,7 +503,7 @@ public class ChoosePictureForm extends JFrame{
 				
 		    	if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    		file = fc.getSelectedFile();
-		    		if (pathsExist()){
+		    		if (iconsExist()){
 						flushNewGameDataIntoFile(file);
 					}
 					else{
@@ -502,7 +532,7 @@ public class ChoosePictureForm extends JFrame{
 				case "default":
 					//this has to be done automatically because the button is already chosen
 					defaultImages();
-					PexesoContainer newGame = prepareNewGame(paths);
+					PexesoContainer newGame = prepareNewGame(icons);
 					if (newGame == null){
 						System.out.println("prepareNewGame returned null.");
 						JOptionPane.showMessageDialog(currentWindow,
@@ -521,8 +551,8 @@ public class ChoosePictureForm extends JFrame{
 				case "customPairs":
 					//choose-file fields already created
 					//and take the paths from them and use them to create new game
-					if (pathsExist()){
-						PexesoContainer customPairs = prepareNewGame(paths);
+					if (iconsExist()){
+						PexesoContainer customPairs = prepareNewGame(icons);
 						chosenPexesoPane = customPairs;
 						if (customPairs == null) showInvalidImageError();
 						else {//view created game
@@ -537,8 +567,8 @@ public class ChoosePictureForm extends JFrame{
 				case "customDiff":
 					//choose-file fields already created
 					//and take the paths from them and use them to create new game
-					if (pathsExist()){
-						PexesoContainer customDiff = prepareNewGame(paths);
+					if (iconsExist()){
+						PexesoContainer customDiff = prepareNewGame(icons);
 						chosenPexesoPane = customDiff;
 						if (customDiff == null) showInvalidImageError();
 						else {//view created game

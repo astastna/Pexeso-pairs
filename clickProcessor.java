@@ -14,7 +14,11 @@ public class clickProcessor implements MouseListener{
 		this.currentCard = currentCard;
 		this.game = game;
 	}
-	
+	/**
+	 * This function implements the whole game logic. 
+	 * All decisions are made when user clicks on the game card.
+	 * 
+	 */
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		JPexesoCard[] turned = game.getTurnedCards(); //cards, which had been turned during previous click
@@ -37,7 +41,12 @@ public class clickProcessor implements MouseListener{
 		}
 		
 		if( turned[0] != null && turned[0].tupleNr == currentCard.tupleNr && turned[0].id != currentCard.id){
-			ignore = false; // click on the other card from tuple
+			if (turned[1] != null && turned[1].tupleNr == currentCard.tupleNr && turned[1].id == currentCard.id){
+				// click on the other card from tuple
+				// turned[0] and turned[1] are a couple and we have clicked on the second one again
+				// this we should ignore
+				newTurned = turned;
+			}
 		}
 		
 		
@@ -48,7 +57,13 @@ public class clickProcessor implements MouseListener{
 		}
 		
 		if( turned[1] != null && turned[1].tupleNr == currentCard.tupleNr && turned[1].id != currentCard.id){
-			ignore = false; // click on the other card from tuple (after clicking on the same card)
+			// click on the other card from tuple (after clicking on the same card)
+			if (turned[0] != null && turned[0].tupleNr == currentCard.tupleNr && turned[0].id == currentCard.id){
+				// click on the other card from tuple
+				// turned[0] and turned[1] are a couple and we have clicked on the first one again
+				// this we should ignore
+				newTurned = turned;
+			}
 		}
 		
 		//no card is turned - we are turning up the current card as the first one turned

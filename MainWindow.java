@@ -22,6 +22,28 @@ import java.nio.file.Paths;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+/**
+ * This is an application with so called Pexeso game. In each step of the game
+ * the player turns two cards. If they are the same, he found one tuple and they
+ * stay turned front side up. Otherwise player just gets to know what has been
+ * on the front picture of the cards and at the beginning of his new turn the 
+ * cards are turned back down.
+ * 
+ * This application allows the player to customize the game - he can choose own 
+ * images to play with (images in pairs can be same or different) and can also 
+ * choose own image, which is displayed on the back side of the cards.
+ * 
+ * The game can be saved in simple text format and then uploaded to make it more
+ * user-friendly, than choosing all pictures every time before playing.
+ * 
+ * This application should be compiled with JavaSE-1.7. There is no guarantee 
+ * that the program will work with other versions of Java.
+ * 
+ * @author Aneta Šťastná
+ *
+ */
+
+
 public class MainWindow {
 	/**
 	 * 
@@ -282,17 +304,17 @@ public class MainWindow {
 	 * Creates new {@link PexesoContainer} with playable game according to given parameters of the game.
 	 * 
 	 * @param pane	{@link Container}, in which the game will be shown. 
-	 * @param paths	{@code String[number of pairs][2]} with paths to images to play with. Images, which 
+	 * @param icons	{@code ImageIcon[number of pairs][2]} with ImageIcons with images to play with. Images, which 
 	 * are together in the array of size 2 form pairs.
 	 * @param width	The width of the game board, which is number of cards in rows.
 	 * @param height	The height of the game board, which is number of cards in columns.
 	 * @param backSideImage	The image that will be shown on the back side of the cards.
 	 * @return pexesoPane	{@link PexesoContainer} with new game.
 	 */
-	private static PexesoContainer createNewPexeso(Container pane, ImageIcon[][] paths, int width, int height, ImageIcon backSideImage){
+	private static PexesoContainer createNewPexeso(Container pane, ImageIcon[][] icons, int width, int height, ImageIcon backSideImage){
 		
 		//create new PexesoContainer
-		PexesoContainer pexesoPane = new PexesoContainer(pane, height, width, backSideImage, paths);
+		PexesoContainer pexesoPane = new PexesoContainer(pane, height, width, backSideImage, icons);
 		//set the size of Container
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
@@ -305,7 +327,6 @@ public class MainWindow {
 	 * Creates {@link PexesoContainer} with playable game. The parameters of the game are taken from 
 	 * the file. The file has to be in text format with following structure:
 	 * width;height
-	 * path-to-back-side-picture
 	 * path-to-first-image-of-pair1;path-to-second-image-of-pair1
 	 * path-to-first-image-of-pair2;path-to-second-image-of-pair2
 	 * ...
@@ -381,40 +402,54 @@ public class MainWindow {
 						System.out.println("Split has wrong lenght.");
 						return null;
 					}
-					if (imageOk(split[0])){
-						String image = split[0];
-						if (image != null) {
-							ImageIcon cardIcon = new ImageIcon (image);
-							if (cardIcon.getImage() != null) paths[lineNum-2][0] = cardIcon;
-							else System.out.println("Icon doesn't contain Image!");
-						}
-						else {
-							showImageError(frame);
-							System.out.println("Image:"+ split[0] +" path is not null but getResource returns null.");
-						}
-					}
-					else {
-						everythingOk = false;
-						System.out.println("Image is not Ok according to the function.");
-						showImageError(frame);
-					}
 					
-					if (imageOk(split[1])){
-						String image = split[1];
-						if (image != null) {
-							ImageIcon cardIcon = new ImageIcon (image);
-							if (cardIcon.getImage() != null) paths[lineNum-2][1] = cardIcon;
-							else System.out.println("Icon doesn't contain Image!");
+					// regular expression which matches the beginning of an absolute path on Windows
+					String windowsRegex = "^[a-zA-Z]:";
+					
+					for (int i = 0; i < 2; i++){
+						
+						if (split[i].startsWith("/") || startsWithRegex(split[i], windowsRegex)){
+							// the path given is absolute - we can load it directly
+							//System.out.println("Absolute path.");
+							
+							if (imageOk(split[i])){
+								String image = split[i];
+								if (image != null) {
+									ImageIcon cardIcon = new ImageIcon (image);
+									if (cardIcon.getImage() != null) paths[lineNum-2][i] = cardIcon;
+									else System.out.println("Icon doesn't contain Image!");
+								}
+								else {
+									showImageError(frame);
+									System.out.println("Image:"+ split[i] +" path is not null but getResource returns null.");
+								}
+							}
+							else {
+								everythingOk = false;
+								System.out.println("Image is not Ok according to the function.");
+								showImageError(frame);
+							}
 						}
 						else {
-							showImageError(frame);
-							System.out.println("Image:"+ split[1] +" path is not null but getResource returns null.");
+							//System.out.println("Relative path: " + split[i]);
+							// relative path can't be checked correctly by function imageOk
+							//the path given is relative - we have to use getResource to make it work even in jar
+							
+							URL image = MainWindow.class.getClassLoader().getResource(split[i]);
+							System.out.println(image);
+							if (image != null) {
+								ImageIcon cardIcon = new ImageIcon (image);
+								System.out.println("cardIcon: " + cardIcon);
+								if (cardIcon.getImage() != null) paths[lineNum-2][i] = cardIcon;
+								else System.out.println("Icon doesn't contain Image!");
+								System.out.println("Image from icon: "+ cardIcon.getImage());
+							}
+							else {
+								showImageError(frame);
+								System.out.println("Image:"+ split[i] +" path is not null but getResource returns null.");
+							}
+							
 						}
-					}
-					else {
-						everythingOk = false;
-						System.out.println("Image is not Ok according to the function.");
-						//showImageError(frame);
 					}
 					
 					lineNum++;
@@ -448,7 +483,7 @@ public class MainWindow {
 	 * 
 	 * Checks if the String is valid path to a file.
 	 * 
-	 * @param path String which should be path to the image file.
+	 * @param path String which should be absolute path to the image file.
 	 * @return true if exist a file with given path
 	 */
     protected static boolean imageOk(String path) {
@@ -456,4 +491,11 @@ public class MainWindow {
     	return Files.exists(filePath, LinkOption.NOFOLLOW_LINKS);
     }
 	
+    private static boolean startsWithRegex(String word, String regex){
+    	String[] split = word.split(regex);
+    	if (split.length > 1 && split[0] == ""){
+    		return true;
+    	}
+    	else return false;
+    }
 }

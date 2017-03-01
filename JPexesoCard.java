@@ -45,6 +45,15 @@ public class JPexesoCard extends JButton{
 	}
 	
 	/**
+	 * Returns the front image of the card.
+	 * 
+	 * @return	front ImageIcon of the card
+	 */
+	public ImageIcon getFrontIcon(){
+		return front;
+	}
+	
+	/**
 	 * Sets the card found.
 	 */
 	public void setFound(){
