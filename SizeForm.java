@@ -111,9 +111,9 @@ public class SizeForm extends JFrame{
 		//Grouping together
 		Box whLableBox = Box.createHorizontalBox();
 		whLableBox.add(Box.createHorizontalGlue());
-		whLableBox.add(heightText);
-		whLableBox.add(Box.createHorizontalGlue());
 		whLableBox.add(widthText);
+		whLableBox.add(Box.createHorizontalGlue());
+		whLableBox.add(heightText);
 		whLableBox.add(Box.createHorizontalGlue());
 		pane.add(whLableBox);
 		

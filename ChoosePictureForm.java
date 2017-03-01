@@ -149,7 +149,6 @@ public class ChoosePictureForm extends JFrame{
 		//add width and height to the file
 		String dimen = ((Integer) gameWidth).toString() + ";" + ((Integer) gameHeight).toString();
 		list.add(dimen);
-		
 		/*
 		 * Remains unimplemented for now due to some errors and minor importance
 		 * back side image is not saved when saving the game
@@ -164,7 +163,14 @@ public class ChoosePictureForm extends JFrame{
 		//create string with matching pathnames
 		if (pathsExist()){
 			for (int k = 0; k < gameWidth*gameHeight/2; k++){
-				list.add(paths[k][0] + ";" + paths[k][1]);
+				String[] correctPath = new String[2];
+				for (int j = 0; j < 2; j++){
+					//getting rid of file: and jar: on the beginning of the path
+					//makes no change to correct path
+					String[] split = (paths[k][j].toString()).split(":");
+					correctPath[j] = split[split.length-1];
+				}
+				list.add(correctPath[0] + ";" + correctPath[1]);
 			}
 		}
 		else{
@@ -199,7 +205,7 @@ public class ChoosePictureForm extends JFrame{
 	 * @return	pexesoPane	Returns new {@link PexesoContainer}, which is playable.
 	 */
 	private PexesoContainer prepareNewGame(ImageIcon[][] images){
-		PexesoContainer pexesoPane = new PexesoContainer(pane, gameWidth, gameHeight, backSideImage, images);
+		PexesoContainer pexesoPane = new PexesoContainer(pane, gameHeight, gameWidth, backSideImage, images);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		pexesoPane.setSize(screenSize);
 		pexesoPane.createNewGame();
@@ -372,6 +378,21 @@ public class ChoosePictureForm extends JFrame{
 		JRadioButton defaultImg = new JRadioButton("Use default images");
 		defaultImg.setActionCommand("default");
 		defaultImg.setSelected(true);
+		
+		//this has to be done as the button seems to be already selected 
+		//when the player wants to save the game, this would be not called, as the Finish button is not clicked on
+		defaultImages();
+		PexesoContainer newGame = prepareNewGame(paths);
+		if (newGame == null){
+			System.out.println("prepareNewGame returned null.");
+			JOptionPane.showMessageDialog(currentWindow,
+			    "Something went wrong with creation of the new game.",
+			    "Unknown error",
+			    JOptionPane.ERROR_MESSAGE);}
+		else {
+			chosenPexesoPane = newGame;
+		} //end of needed code
+		
 		defaultImg.addActionListener(new ActionListener() {
 			public void actionPerformed (ActionEvent e){
 				//everything will be done after pressing Finish button
@@ -479,6 +500,7 @@ public class ChoosePictureForm extends JFrame{
 				switch (actionCommand){
 				
 				case "default":
+					//this has to be done automatically because the button is already chosen
 					defaultImages();
 					PexesoContainer newGame = prepareNewGame(paths);
 					if (newGame == null){

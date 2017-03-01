@@ -414,7 +414,7 @@ public class MainWindow {
 					else {
 						everythingOk = false;
 						System.out.println("Image is not Ok according to the function.");
-						showImageError(frame);
+						//showImageError(frame);
 					}
 					
 					lineNum++;
